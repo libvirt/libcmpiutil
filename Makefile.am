@@ -1,0 +1,36 @@
+# Copyright IBM Corp. 2007
+SUBDIRS = tools
+
+include_HEADERS = libcmpiutil.h \
+                  std_invokemethod.h \
+                  std_association.h \
+                  std_indication.h
+
+libcmpiutil_la_SOURCES = args_util.c instance_util.c std_invokemethod.c \
+                         std_association.c inst_list.c std_indication.c \
+                         debug_util.c
+libcmpiutil_la_CFLAGS = $(CFLAGS) $(CFLAGS_STRICT)
+libcmpiutil_la_LIBADD =
+
+AM_LFLAGS = -Peo_parse_
+AM_YFLAGS = -d -p eo_parse_
+
+if build_eoparser
+LEX_OUTPUT_ROOT = lex.eo_parse_
+libcueoparser_la_SOURCES = eo_util_parser.y eo_util_lexer.l eo_parser.c
+libcmpiutil_la_LIBADD += -lcueoparser
+EOPARSER = libcueoparser.la
+BUILT_SOURCES = eo_util_lexer.c eo_util_parser.c eo_util_parser.h
+endif
+
+lib_LTLIBRARIES = $(EOPARSER) libcmpiutil.la 
+
+docs:
+if found_doxygen
+	doxygen doc/doxygen.conf
+else
+	@echo Cannot build documentation without doxygen!
+endif
+
+clean-local:
+	rm -f $(BUILT_SOURCES) *~
