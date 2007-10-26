@@ -1,0 +1,11 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@/libcmpiutil
+
+Name: libcmpiutil
+Version: @VERSION@
+Description: CMPI Utility Library
+Requires:
+Libs: -L${libdir} -lcmpiutil
+Cflags: -I${includedir}

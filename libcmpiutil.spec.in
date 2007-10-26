@@ -1,0 +1,77 @@
+# -*- rpm-spec -*-
+
+Summary: CMPI Utility Library
+Name: libcmpiutil
+Version: @PACKAGE_VERSION@
+Release: 1%{?dist}%{?extra_release}
+License: LGPL
+Group: Development/Libraries
+Source: libcmpiutil-%{version}.tar.gz
+BuildRoot: %{_tmppath}/%{name}-%{version}-root
+URL: http://libvirt.org/CIM/
+BuildRequires: sblim-cmpi-devel
+BuildRequires: flex
+BuildRequires: bison
+
+%description
+Libcmpiutil is a library of utility functions for CMPI providers.
+The goal is to reduce the amount of repetitive work done in
+most CMPI providers by encapsulating common procedures with more
+"normal" APIs.  This extends from operations like getting typed
+instance properties to standardizing method dispatch and argument checking. 
+
+%package devel
+Summary: Libraries, includes, etc. to use the CMPI utility library
+Group: Development/Libraries
+Requires: sblim-cmpi-devel
+Requires: pkgconfig
+
+%description devel
+Includes and documentations for the CMPI utility library
+The goal is to reduce the amount of repetitive work done in
+most CMPI providers by encapsulating common procedures with more
+"normal" APIs.  This extends from operations like getting typed
+instance properties to standardizing method dispatch and argument checking. 
+
+%prep
+%setup -q
+
+%build
+%configure
+make
+
+%install
+rm -fr %{buildroot}
+
+%makeinstall
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
+rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
+
+%clean
+rm -fr %{buildroot}
+
+%post
+/sbin/ldconfig
+
+%postun
+/sbin/ldconfig
+
+%files 
+%defattr(-, root, root)
+
+%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+%{_libdir}/lib*.so.*
+
+%files devel
+%defattr(-, root, root)
+
+%{_libdir}/lib*.so
+%dir %{_includedir}/
+%{_includedir}/libcmpiutil/*.h
+%{_libdir}/pkgconfig/libcmpiutil.pc
+
+%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+
+%changelog
+* Fri Oct 26 2007 Daniel Veillard <veillard@redhat.com> - 0.1-1
+- created

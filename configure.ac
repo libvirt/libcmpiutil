@@ -61,4 +61,5 @@ echo ""
 echo "Build Embedded Object parser:     $eoparser"
 echo ""
 
-AC_OUTPUT
+AC_OUTPUT(libcmpiutil.spec libcmpiutil.pc)
+

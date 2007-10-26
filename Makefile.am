@@ -1,7 +1,16 @@
 # Copyright IBM Corp. 2007
 SUBDIRS = tools
 
-include_HEADERS = libcmpiutil.h \
+EXTRA_DIST = libcmpiutil.spec.in libcmpiutil.spec COPYING		\
+	     libcmpiutil.pc.in libcmpiutil.pc				\
+	     doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+
+pkgconfigdir = $(libdir)/pkgconfig
+pkgconfig_DATA = libcmpiutil.pc
+
+libcmpiutilincdir = $(includedir)/libcmpiutil
+
+libcmpiutilinc_HEADERS = libcmpiutil.h \
                   std_invokemethod.h \
                   std_association.h \
                   std_indication.h
@@ -34,3 +43,7 @@ endif
 
 clean-local:
 	rm -f $(BUILT_SOURCES) *~
+
+rpm: clean
+	@(unset CDPATH ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.gz)
+
