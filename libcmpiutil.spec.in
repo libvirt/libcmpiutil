@@ -59,7 +59,7 @@ rm -fr %{buildroot}
 %files 
 %defattr(-, root, root)
 
-%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches README
 %{_libdir}/lib*.so.*
 
 %files devel
@@ -70,7 +70,7 @@ rm -fr %{buildroot}
 %{_includedir}/libcmpiutil/*.h
 %{_libdir}/pkgconfig/libcmpiutil.pc
 
-%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches README
 
 %changelog
 * Fri Oct 26 2007 Daniel Veillard <veillard@redhat.com> - 0.1-1

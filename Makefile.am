@@ -3,7 +3,7 @@ SUBDIRS = tools
 
 EXTRA_DIST = libcmpiutil.spec.in libcmpiutil.spec COPYING		\
 	     libcmpiutil.pc.in libcmpiutil.pc				\
-	     doc/doxygen.conf doc/mainpage doc/SubmittingPatches
+	     doc/doxygen.conf doc/mainpage doc/SubmittingPatches README
 
 pkgconfigdir = $(libdir)/pkgconfig
 pkgconfig_DATA = libcmpiutil.pc
