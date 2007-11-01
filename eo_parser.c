@@ -66,9 +66,9 @@ int cu_parse_embedded_instance(const char *eo,
                                const CMPIBroker *broker,
                                CMPIInstance **instance)
 {
+        int ret;
 #ifdef HAVE_EOPARSER
         int fd;
-        int ret;
         FILE *fp;
 
         fd = write_temp(eo);
