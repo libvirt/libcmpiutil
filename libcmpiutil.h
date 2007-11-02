@@ -337,6 +337,27 @@ void inst_list_free(struct inst_list *list);
  */
 int inst_list_add(struct inst_list *list, CMPIInstance *inst);
 
+struct cu_property {
+        const char *name;
+        bool required;
+};
+
+/**
+ * Compare key values in a reference to properties in an instance,
+ * making sure they are identical.  If props identifies a particular
+ * key as not required, then absence in the object path will not
+ * result in failure of this test.
+ *
+ * @param ref The ObjectPath to examine
+ * @param inst The Instance to compare
+ * @param props A NULL-terminated list of properties to compare
+ * @returns A pointer to the property structure of the first
+ *          non-matching property, or NULL if all match
+ */
+const struct cu_property *cu_compare_ref(const CMPIObjectPath *ref,
+                                         const CMPIInstance *inst,
+                                         const struct cu_property *props);
+
 #define DEFAULT_EIN(pn)                                                 \
         static CMPIStatus pn##EnumInstanceNames(CMPIInstanceMI *self,   \
                                                 const CMPIContext *c,   \

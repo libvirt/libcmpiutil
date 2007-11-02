@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 #include <stdbool.h>
+#include <string.h>
 
 #include "libcmpiutil.h"
 
@@ -66,6 +67,59 @@ unsigned int cu_return_instance_names(const CMPIResult *results,
                         c++;
 
         return c;
+}
+
+static bool _compare_data(const CMPIData *a, const CMPIData *b)
+{
+        if (a->type != b->type)
+                return false;
+
+        if (a->type & CMPI_string) {
+                const char *as = CMGetCharPtr(a->value.string);
+                const char *bs = CMGetCharPtr(b->value.string);
+
+                return STREQ(as, bs);
+        } else if (a->type & CMPI_INTEGER) {
+                return memcmp(&a->value, &b->value, sizeof(a->value)) == 0;
+        }
+
+        CU_DEBUG("Unhandled CMPI type: `%i'", a->type);
+
+        return false;
+}
+
+const struct cu_property *cu_compare_ref(const CMPIObjectPath *ref,
+                                         const CMPIInstance *inst,
+                                         const struct cu_property *props)
+{
+        const struct cu_property *p = NULL;
+        int i;
+        CMPIStatus s;
+
+        for (i = 0; props[i].name != NULL; i++) {
+                CMPIData kd, pd;
+
+                p = &props[i];
+
+                kd = CMGetKey(ref, p->name, &s);
+                if (s.rc != CMPI_RC_OK) {
+                        if (p->required)
+                                goto out;
+                        else
+                                continue;
+                }
+
+                pd = CMGetProperty(inst, p->name, &s);
+                if (s.rc != CMPI_RC_OK)
+                        goto out;
+
+                if (!_compare_data(&kd, &pd))
+                        goto out;
+        }
+
+        p = NULL;
+ out:
+        return p;
 }
 
 /*
