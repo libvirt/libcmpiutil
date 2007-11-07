@@ -88,38 +88,48 @@ static bool _compare_data(const CMPIData *a, const CMPIData *b)
         return false;
 }
 
-const struct cu_property *cu_compare_ref(const CMPIObjectPath *ref,
-                                         const CMPIInstance *inst,
-                                         const struct cu_property *props)
+const char *cu_compare_ref(const CMPIObjectPath *ref,
+                           const CMPIInstance *inst)
 {
-        const struct cu_property *p = NULL;
         int i;
         CMPIStatus s;
+        int count;
+        const char *prop = NULL;
 
-        for (i = 0; props[i].name != NULL; i++) {
-                CMPIData kd, pd;
-
-                p = &props[i];
-
-                kd = CMGetKey(ref, p->name, &s);
-                if (s.rc != CMPI_RC_OK) {
-                        if (p->required)
-                                goto out;
-                        else
-                                continue;
-                }
-
-                pd = CMGetProperty(inst, p->name, &s);
-                if (s.rc != CMPI_RC_OK)
-                        goto out;
-
-                if (!_compare_data(&kd, &pd))
-                        goto out;
+        count = CMGetKeyCount(ref, &s);
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("Unable to get key count");
+                return NULL;
         }
 
-        p = NULL;
+        for (i = 0; i < count; i++) {
+                CMPIData kd, pd;
+                CMPIString *str;
+
+                kd = CMGetKeyAt(ref, i, &str, &s);
+                if (s.rc != CMPI_RC_OK) {
+                        CU_DEBUG("Failed to get key %i", i);
+                        goto out;
+                }
+
+                prop = CMGetCharPtr(str);
+                CU_DEBUG("Comparing key `%s'", prop);
+
+                pd = CMGetProperty(inst, prop, &s);
+                if (s.rc != CMPI_RC_OK) {
+                        CU_DEBUG("Failed to get property `%s'", prop);
+                        goto out;
+                }
+
+                if (!_compare_data(&kd, &pd)) {
+                        CU_DEBUG("No data match for `%s'", prop);
+                        goto out;
+                }
+        }
+
+        prop = NULL;
  out:
-        return p;
+        return prop;
 }
 
 /*
