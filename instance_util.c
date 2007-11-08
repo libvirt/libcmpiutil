@@ -78,7 +78,7 @@ static bool _compare_data(const CMPIData *a, const CMPIData *b)
                 const char *as = CMGetCharPtr(a->value.string);
                 const char *bs = CMGetCharPtr(b->value.string);
 
-                return STREQ(as, bs);
+                return STREQC(as, bs);
         } else if (a->type & CMPI_INTEGER) {
                 return memcmp(&a->value, &b->value, sizeof(a->value)) == 0;
         }
@@ -86,6 +86,29 @@ static bool _compare_data(const CMPIData *a, const CMPIData *b)
         CU_DEBUG("Unhandled CMPI type: `%i'", a->type);
 
         return false;
+}
+
+static bool _compare_classname(const CMPIObjectPath *ref,
+                               const CMPIInstance *inst)
+{
+        const char *ref_cn;
+        const char *inst_cn;
+        CMPIObjectPath *op;
+        CMPIStatus s;
+
+        op = CMGetObjectPath(inst, &s);
+        if ((op == NULL) || (s.rc != CMPI_RC_OK))
+                return false;
+
+        ref_cn = CLASSNAME(ref);
+        if (ref_cn == NULL)
+                return false;
+
+        inst_cn = CLASSNAME(op);
+        if (inst_cn == NULL)
+                return false;
+
+        return STREQC(inst_cn, ref_cn);
 }
 
 const char *cu_compare_ref(const CMPIObjectPath *ref,
@@ -101,6 +124,9 @@ const char *cu_compare_ref(const CMPIObjectPath *ref,
                 CU_DEBUG("Unable to get key count");
                 return NULL;
         }
+
+        if (!_compare_classname(ref, inst))
+                return "CreationClassName";
 
         for (i = 0; i < count; i++) {
                 CMPIData kd, pd;
