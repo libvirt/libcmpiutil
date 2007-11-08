@@ -47,6 +47,17 @@ void set_reference(struct std_assoc *assoc,
                       (CMPIValue *)&target, CMPI_ref);
 }
 
+static bool match_op(const CMPIBroker *broker,
+                     CMPIObjectPath *op,
+                     const char *filter_class)
+{
+        if ((filter_class == NULL) ||
+            CMClassPathIsA(broker, op, filter_class, NULL))
+                return true;
+        else
+                return false;
+}
+
 static bool match_class(const CMPIBroker *broker,
                         const char *ns,
                         const char *test_class,
@@ -58,10 +69,44 @@ static bool match_class(const CMPIBroker *broker,
 
         if ((test_class == NULL) ||
             (comp_class == NULL) ||
-            CMClassPathIsA(broker, rop, comp_class, NULL))
+            match_op(broker, rop, comp_class))
                 return true;
         else
                 return false;
+}
+
+static CMPIStatus filter_results(struct inst_list *list,
+                                 char *ns,
+                                 const char *filter_class,
+                                 const CMPIBroker *broker)
+{
+        struct inst_list result_list;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        CMPIObjectPath *op;
+        int i;
+
+        result_list = *list;
+        inst_list_init(list);
+
+        for (i = 0; result_list.list[i] != NULL; i++) {
+                op = CMGetObjectPath(result_list.list[i], &s);
+                if ((s.rc != CMPI_RC_OK) || CMIsNullObject(op))
+                          goto out;
+
+                s = CMSetNameSpace(op, ns);
+                if (s.rc != CMPI_RC_OK)
+                          goto out;
+
+                if (!match_op(broker, op, filter_class))
+                          continue;
+
+                inst_list_add(list, result_list.list[i]);
+        }
+
+out:
+        inst_list_free(&result_list);
+
+        return s;
 }
 
 static struct std_assoc *
@@ -142,6 +187,20 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                 goto out;
         } else {
                 CU_DEBUG("\thandler returned CMPI_RC_OK.\n");
+        }
+
+        if (list.list == NULL) {
+                CU_DEBUG("\tlist is empty.\n");
+                goto out;
+        }
+
+        s = filter_results(&list,
+                           NAMESPACE(ref),
+                           info->result_class,
+                           ctx->brkr);
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("\tfilter_results did not return CMPI_RC_OK.\n");
+                goto out;
         }
 
         if (list.list == NULL) {
