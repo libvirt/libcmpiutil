@@ -92,10 +92,30 @@ CMPIStatus stdi_trigger_indication(const CMPIBroker *broker,
         CMPIObjectPath *op;
         CMPIStatus s;
         const char *method = "TriggerIndications";
+        CMPIArgs *in;
+        CMPIArgs *out;
+
+        in = CMNewArgs(broker, &s);
+        if (s.rc != CMPI_RC_OK)
+                return s;
+
+        out = CMNewArgs(broker, &s);
+        if (s.rc != CMPI_RC_OK)
+                return s;
 
         op = CMNewObjectPath(broker, ns, type, &s);
-        CBInvokeMethod(broker, context, op, method, NULL, NULL, &s);
+        if ((op == NULL) || (s.rc != CMPI_RC_OK)) {
+                CU_DEBUG("Unable to create path for indication %s",
+                         type);
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unable to create path for indication %s",
+                           type);
+                goto out;
+        }
 
+        CBInvokeMethod(broker, context, op, method, in, out, &s);
+ out:
         return s;
 }
 
@@ -108,21 +128,26 @@ CMPIStatus stdi_raise_indication(const CMPIBroker *broker,
         CMPIObjectPath *op;
         CMPIStatus s;
         const char *method = "RaiseIndication";
-        CMPIArgs *args;
+        CMPIArgs *argsin;
+        CMPIArgs *argsout;
 
         op = CMNewObjectPath(broker, ns, type, &s);
         if (s.rc != CMPI_RC_OK)
                 return s;
 
-        args = CMNewArgs(broker, &s);
+        argsin = CMNewArgs(broker, &s);
         if (s.rc != CMPI_RC_OK)
                 return s;
 
-        s = CMAddArg(args, "Indication", &ind, CMPI_instance);
+        argsout = CMNewArgs(broker, &s);
         if (s.rc != CMPI_RC_OK)
                 return s;
 
-        CBInvokeMethod(broker, context, op, method, args, NULL, &s);
+        s = CMAddArg(argsin, "Indication", &ind, CMPI_instance);
+        if (s.rc != CMPI_RC_OK)
+                return s;
+
+        CBInvokeMethod(broker, context, op, method, argsin, argsout, &s);
 
         return s;
 }
