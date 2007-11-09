@@ -80,16 +80,16 @@ static CMPIStatus filter_results(struct inst_list *list,
                                  const char *filter_class,
                                  const CMPIBroker *broker)
 {
-        struct inst_list result_list;
+        struct inst_list tmp_list;
         CMPIStatus s = {CMPI_RC_OK, NULL};
         CMPIObjectPath *op;
         int i;
 
-        result_list = *list;
+        tmp_list = *list;
         inst_list_init(list);
 
-        for (i = 0; result_list.list[i] != NULL; i++) {
-                op = CMGetObjectPath(result_list.list[i], &s);
+        for (i = 0; tmp_list.list[i] != NULL; i++) {
+                op = CMGetObjectPath(tmp_list.list[i], &s);
                 if ((s.rc != CMPI_RC_OK) || CMIsNullObject(op))
                           goto out;
 
@@ -100,11 +100,11 @@ static CMPIStatus filter_results(struct inst_list *list,
                 if (!match_op(broker, op, filter_class))
                           continue;
 
-                inst_list_add(list, result_list.list[i]);
+                inst_list_add(list, tmp_list.list[i]);
         }
 
 out:
-        inst_list_free(&result_list);
+        inst_list_free(&tmp_list);
 
         return s;
 }
@@ -163,18 +163,25 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                         handler->target_class);
         if (!rc) {
                 CU_DEBUG("Match_class failed.\n");
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Result class is not valid for this association");
                 goto out;
         }
         CU_DEBUG("Match_class succeeded.\n");
 
         CU_DEBUG("Calling match_class: \n\tinfo->assoc_class: '%s'\n",
-              info->result_class);
+              info->assoc_class);
         rc = match_class(ctx->brkr, 
                         NAMESPACE(ref), 
                         info->assoc_class, 
                         handler->assoc_class);
         if (!rc) {
                 CU_DEBUG("Match_class failed.\n");
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Association class given is not valid for"
+                           "this association");
                 goto out;
         }
         CU_DEBUG("Match_class succeeded.\n");
@@ -248,8 +255,13 @@ static CMPIStatus do_ref(struct std_assoc_ctx *ctx,
                         NAMESPACE(ref), 
                         info->result_class, 
                         handler->assoc_class);
-        if (!rc)
+        if (!rc) {
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Result class is not valid for this association");
                 goto out;
+        }
+
 
         s = handler->handler(ref, info, &list);
         if ((s.rc != CMPI_RC_OK) || (list.list == NULL))
