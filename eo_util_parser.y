@@ -22,8 +22,9 @@ void eo_parse_error(char *);
 #define RC_EOF EOF
 
 /* DEFINE ANY GLOBAL VARS HERE */
-static CMPIBroker * _BROKER;
+static const CMPIBroker * _BROKER;
 static CMPIInstance ** _INSTANCE;
+static const char * _NAMESPACE;
 
 #ifdef EODEBUG
 #define EOTRACE(fmt, arg...) fprintf(stderr, fmt, ##arg)
@@ -31,7 +32,9 @@ static CMPIInstance ** _INSTANCE;
 #define EOTRACE(fmt, arg...)
 #endif
 
-int eo_parse_parseinstance(CMPIBroker *broker, CMPIInstance **instance);
+int eo_parse_parseinstance(const CMPIBroker *broker,
+			   CMPIInstance **instance,
+			   const char *ns);
 
 %}
 
@@ -64,7 +67,7 @@ instance:	/* empty */
 			EOTRACE("classname = %s\n",$3);
 			CMPIObjectPath *op;
 			op = CMNewObjectPath(_BROKER,
-					     "root/ibmsd",
+					     _NAMESPACE,
 					     $3,
 					     NULL);
 			*_INSTANCE = CMNewInstance(_BROKER,
@@ -125,10 +128,13 @@ property:	PROPERTYNAME '=' STRING ';'
 
 /* USER SUBROUTINE SECTION */
 
-int eo_parse_parseinstance(CMPIBroker *broker, CMPIInstance **instance)
+int eo_parse_parseinstance(const CMPIBroker *broker,
+			   CMPIInstance **instance,
+			   const char *ns)
 {
    _BROKER = broker;
    _INSTANCE = instance;
+   _NAMESPACE = ns;
 
    /* Parse the next instance */
    return(eo_parse_parse());

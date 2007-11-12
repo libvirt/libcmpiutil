@@ -277,12 +277,14 @@ CMPIType cu_arg_type(const CMPIArgs *args, const char *arg);
  *
  * @param eo The embedded instance string
  * @param broker A pointer to the current broker
+ * @param ns The namespace for the new instance
  * @param instance A pointer to an instance pointer to hold the result
  * @returns nonzero on success
  *
  */
 int cu_parse_embedded_instance(const char *eo,
                                const CMPIBroker *broker,
+                               const char *ns,
                                CMPIInstance **instance);
 
 /**

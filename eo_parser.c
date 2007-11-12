@@ -35,7 +35,7 @@
 #define TEMPLATE "/tmp/tmp_eo_parse.XXXXXX"
 
 void eo_parse_restart(FILE *);
-int eo_parse_parseinstance(const CMPIBroker *, CMPIInstance **);
+int eo_parse_parseinstance(const CMPIBroker *, CMPIInstance **, const char *ns);
 
 static int write_temp(char *eo)
 {
@@ -64,6 +64,7 @@ static int write_temp(char *eo)
 
 int cu_parse_embedded_instance(const char *eo,
                                const CMPIBroker *broker,
+                               const char *ns,
                                CMPIInstance **instance)
 {
         int ret;
@@ -77,7 +78,7 @@ int cu_parse_embedded_instance(const char *eo,
 
         fp = fdopen(fd, "r");
         eo_parse_restart(fp);
-        ret = eo_parse_parseinstance(broker, instance);
+        ret = eo_parse_parseinstance(broker, instance, ns);
 
         close(fd);
 #else
