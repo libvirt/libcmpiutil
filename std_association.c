@@ -139,22 +139,22 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
 
         inst_list_init(&list);
 
-        CU_DEBUG("Getting handler...\n");
+        CU_DEBUG("Getting handler...");
 
         handler = std_assoc_get_handler(ctx, ref);
         if (handler == NULL) {
-                CU_DEBUG("No handler found.\n");
+                CU_DEBUG("No handler found.");
                 cu_statusf(ctx->brkr, &s,
                            CMPI_RC_ERR_FAILED,
                            "Unable to handle this association");
                 goto out;
         }
 
-        CU_DEBUG("OK.\n\tsource: '%s'\n\ttarget: '%s'\n\tassoc_class: '%s'\n",
+        CU_DEBUG("OK.\n\tsource: '%s'\n\ttarget: '%s'\n\tassoc_class: '%s'",
               handler->source_class, 
               handler->target_class, 
               handler->assoc_class);
-        CU_DEBUG("Calling match_class: \n\tinfo->result_class: '%s'\n",
+        CU_DEBUG("Calling match_class: \n\tinfo->result_class: '%s'",
               info->result_class);
 
         rc = match_class(ctx->brkr, 
@@ -162,42 +162,41 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                         info->result_class, 
                         handler->target_class);
         if (!rc) {
-                CU_DEBUG("Match_class failed.\n");
+                CU_DEBUG("Match_class failed.");
                 cu_statusf(ctx->brkr, &s,
                            CMPI_RC_ERR_FAILED,
                            "Result class is not valid for this association");
                 goto out;
         }
-        CU_DEBUG("Match_class succeeded.\n");
+        CU_DEBUG("Match_class succeeded.");
 
-        CU_DEBUG("Calling match_class: \n\tinfo->assoc_class: '%s'\n",
+        CU_DEBUG("Calling match_class: \n\tinfo->assoc_class: '%s'",
               info->assoc_class);
         rc = match_class(ctx->brkr, 
                         NAMESPACE(ref), 
                         info->assoc_class, 
                         handler->assoc_class);
         if (!rc) {
-                CU_DEBUG("Match_class failed.\n");
+                CU_DEBUG("Match_class failed.");
                 cu_statusf(ctx->brkr, &s,
                            CMPI_RC_ERR_FAILED,
                            "Association class given is not valid for"
                            "this association");
                 goto out;
         }
-        CU_DEBUG("Match_class succeeded.\n");
-        CU_DEBUG("Calling handler->handler...\n");
+        CU_DEBUG("Match_class succeeded, calling handler->handler...");
 
         s = handler->handler(ref, info, &list);
         
         if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("\thandler did not return CMPI_RC_OK.\n");
+                CU_DEBUG("Handler did not return CMPI_RC_OK.");
                 goto out;
         } else {
-                CU_DEBUG("\thandler returned CMPI_RC_OK.\n");
+                CU_DEBUG("Handler returned CMPI_RC_OK.");
         }
 
         if (list.list == NULL) {
-                CU_DEBUG("\tlist is empty.\n");
+                CU_DEBUG("List is empty.");
                 goto out;
         }
 
@@ -206,15 +205,15 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                            info->result_class,
                            ctx->brkr);
         if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("\tfilter_results did not return CMPI_RC_OK.\n");
+                CU_DEBUG("filter_results did not return CMPI_RC_OK.");
                 goto out;
         }
 
         if (list.list == NULL) {
-                CU_DEBUG("\tlist is empty.\n");
+                CU_DEBUG("List is empty.");
                 goto out;
         } else {
-                CU_DEBUG("\treturned %u instance(s).\n", list.cur);
+                CU_DEBUG("Returned %u instance(s).", list.cur);
         }
 
         if (names_only)
@@ -225,7 +224,6 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
  out:
         inst_list_free(&list);
 
-        CU_DEBUG("Returning.\n");
         return s;
 }
 
