@@ -89,59 +89,59 @@ static bool _compare_data(const CMPIData *a, const CMPIData *b)
 }
 
 static bool _compare_classname(const CMPIObjectPath *ref,
-                               const CMPIInstance *inst)
+                               const CMPIObjectPath *op)
 {
         const char *ref_cn;
-        const char *inst_cn;
-        CMPIObjectPath *op;
-        CMPIStatus s;
-
-        op = CMGetObjectPath(inst, &s);
-        if ((op == NULL) || (s.rc != CMPI_RC_OK))
-                return false;
-
+        const char *op_cn;
+        
         ref_cn = CLASSNAME(ref);
         if (ref_cn == NULL)
                 return false;
-
-        inst_cn = CLASSNAME(op);
-        if (inst_cn == NULL)
+        
+        op_cn = CLASSNAME(op);
+        if (op_cn == NULL)
                 return false;
-
-        return STREQC(inst_cn, ref_cn);
+        
+        return STREQC(op_cn, ref_cn);
 }
 
 const char *cu_compare_ref(const CMPIObjectPath *ref,
                            const CMPIInstance *inst)
 {
-        int i;
-        CMPIStatus s;
-        int count;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        CMPIObjectPath *op; 
         const char *prop = NULL;
+        int i;
+        int count;
 
-        count = CMGetKeyCount(ref, &s);
+        op = CMGetObjectPath(inst, &s);
+        if ((op == NULL) || (s.rc != CMPI_RC_OK))
+                return NULL;
+
+        if (!_compare_classname(ref, op))
+                return "CreationClassName";
+        
+        count = CMGetKeyCount(op, &s);
         if (s.rc != CMPI_RC_OK) {
                 CU_DEBUG("Unable to get key count");
                 return NULL;
         }
-
-        if (!_compare_classname(ref, inst))
-                return "CreationClassName";
-
+        CU_DEBUG("Number of keys: %i", count);
+        
         for (i = 0; i < count; i++) {
                 CMPIData kd, pd;
                 CMPIString *str;
 
-                kd = CMGetKeyAt(ref, i, &str, &s);
+                kd = CMGetKeyAt(op, i, &str, &s);
                 if (s.rc != CMPI_RC_OK) {
                         CU_DEBUG("Failed to get key %i", i);
                         goto out;
                 }
 
                 prop = CMGetCharPtr(str);
-                CU_DEBUG("Comparing key `%s'", prop);
+                CU_DEBUG("Comparing key %i: `%s'", i, prop);
 
-                pd = CMGetProperty(inst, prop, &s);
+                pd = CMGetKey(ref, prop, &s);
                 if (s.rc != CMPI_RC_OK) {
                         CU_DEBUG("Failed to get property `%s'", prop);
                         goto out;
