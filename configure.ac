@@ -57,6 +57,8 @@ fi
 CFLAGS_STRICT="-Werror"
 AC_SUBST(CFLAGS_STRICT)
 
+CHECK_BROKEN_CMPIFT
+
 echo ""
 echo "Build Embedded Object parser:     $eoparser"
 echo ""

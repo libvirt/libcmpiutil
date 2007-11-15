@@ -71,3 +71,24 @@ AC_DEFUN([CHECK_CMPI],
         fi
         ]
 )
+
+AC_DEFUN([CHECK_BROKEN_CMPIFT],
+	[
+	AC_MSG_CHECKING(for a broken cmpift.h)
+	AC_RUN_IFELSE([
+	#include <cmpift.h>
+
+	int main(void) {
+	  if ((sizeof(unsigned long) == 8) &&
+	      (sizeof(struct _CMPIBrokerFT) != 160))
+	    return 1;
+	  else
+	    return 0;
+	}
+	],[
+	    AC_MSG_RESULT(no)
+	],[
+	    AC_MSG_ERROR(You have a broken cmpift.h header.  Is a broken version of sblim-cmpi-devel installed?)
+	]
+)])
+
