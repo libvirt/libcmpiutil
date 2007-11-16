@@ -9,9 +9,10 @@ Group: Development/Libraries
 Source: libcmpiutil-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
 URL: http://libvirt.org/CIM/
-BuildRequires: sblim-cmpi-devel
+BuildRequires: tog-pegasus-devel
 BuildRequires: flex
 BuildRequires: bison
+BuildConflicts: sblim-cmpi-devel
 
 %description
 Libcmpiutil is a library of utility functions for CMPI providers.
@@ -23,7 +24,7 @@ instance properties to standardizing method dispatch and argument checking.
 %package devel
 Summary: Libraries, includes, etc. to use the CMPI utility library
 Group: Development/Libraries
-Requires: sblim-cmpi-devel
+Requires: tog-pegasus-devel
 Requires: pkgconfig
 
 %description devel
