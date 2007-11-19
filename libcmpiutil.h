@@ -63,6 +63,20 @@
 void debug_print(char *fmt, ...);
 
 /**
+ * Copies a property from one CMPIInstance to another.  If dest_name is NULL, 
+ * it is assumed to be the same as src_name.
+ *
+ * @param broker CIM broker, needed for status calls
+ * @param src_inst Instance to copy from
+ * @param dest_inst Instance to copy to
+ * @param src_name Name of property to be copied from src_inst
+ * @param dest_name Name of property to be copied to dest_inst
+ */
+CMPIStatus cu_copy_prop(const CMPIBroker *broker, 
+                        CMPIInstance *src_inst, CMPIInstance *dest_inst,
+                        char *src_name, char *dest_name);
+
+/**
  * Check arguments (names and count)
  *
  * @param args The argument list to check

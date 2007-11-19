@@ -156,6 +156,37 @@ const char *cu_compare_ref(const CMPIObjectPath *ref,
         return prop;
 }
 
+CMPIStatus cu_copy_prop(const CMPIBroker *broker,
+                        CMPIInstance *src_inst, CMPIInstance *dest_inst,
+                        char *src_name, char *dest_name)
+{
+        CMPIData data;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+
+        if (src_name == NULL) {
+                cu_statusf(broker, &s, 
+                           CMPI_RC_ERR_FAILED,
+                           "No property name given");
+                goto out;
+        }
+
+        if (dest_name == NULL)
+                dest_name = src_name;
+
+        data = CMGetProperty(src_inst, src_name, &s);
+        if (s.rc != CMPI_RC_OK || CMIsNullValue(data)) {
+                cu_statusf(broker, &s, 
+                           CMPI_RC_ERR_FAILED,
+                           "Copy failed.  Could not get prop '%s'.", src_name);
+                goto out;
+        }
+
+        CMSetProperty(dest_inst, dest_name, &(data.value), data.type);
+
+ out:
+        return s;        
+}
+
 /*
  * Local Variables:
  * mode: C
