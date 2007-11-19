@@ -217,9 +217,9 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
         }
 
         if (names_only)
-                cu_return_instance_names(results, list.list);
+                cu_return_instance_names(results, &list);
         else
-                cu_return_instances(results, list.list);
+                cu_return_instances(results, &list);
 
  out:
         inst_list_free(&list);

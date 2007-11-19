@@ -24,15 +24,15 @@
 #include "libcmpiutil.h"
 
 unsigned int cu_return_instances(const CMPIResult *results,
-                                 CMPIInstance ** const list)
+                                 const struct inst_list *list)
 {
         unsigned int i;
 
         if (list == NULL)
                 return 0;
 
-        for (i = 0; list[i] != NULL; i++)
-                CMReturnInstance(results, list[i]);
+        for (i = 0; i < list->cur; i++)
+                CMReturnInstance(results, list->list[i]);
 
         return i;
 }
@@ -54,19 +54,17 @@ bool cu_return_instance_name(const CMPIResult *results,
 }
 
 unsigned int cu_return_instance_names(const CMPIResult *results,
-                                      CMPIInstance ** const list)
+                                      const struct inst_list *list)
 {
         unsigned int i;
-        unsigned int c = 0;
 
         if (list == NULL)
                 return 0;
 
-        for (i = 0; list[i] != NULL; i++)
-                if (cu_return_instance_name(results, list[i]))
-                        c++;
+        for (i = 0; i < list->cur; i++)
+                cu_return_instance_name(results, list->list[i]);
 
-        return c;
+        return i;
 }
 
 static bool _compare_data(const CMPIData *a, const CMPIData *b)

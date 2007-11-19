@@ -139,15 +139,18 @@ int cu_get_u16_path(const CMPIObjectPath *reference,
                     const char *key,
                     uint16_t *target);
 
+/* Forward declaration */
+struct inst_list;
+
 /**
  * Return a list of instances
  *
- * @param list A NULL-terminated list of instances
  * @param results The result list to populate
+ * @param list A list of instances to return
  * @returns The number of instances returned
  */
 unsigned int cu_return_instances(const CMPIResult *results,
-                                 CMPIInstance ** const list);
+                                 const struct inst_list *list);
 
 /**
  * Return an instance object path
@@ -163,13 +166,12 @@ bool cu_return_instance_name(const CMPIResult *results,
 /**
  * Return the object paths of a list of instances
  *
- * @param list A NULL-terminated list of instances
  * @param results The result list to populate
- * @param op The object path
+ * @param list A list of instances to return (names of)
  * @returns The number of instance names returned
  */
 unsigned int cu_return_instance_names(const CMPIResult *results,
-                                      CMPIInstance ** const list);
+                                      const struct inst_list *list);
 
 /**
  * Get a string property of an instance
