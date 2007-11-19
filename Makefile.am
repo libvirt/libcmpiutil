@@ -13,7 +13,8 @@ libcmpiutilincdir = $(includedir)/libcmpiutil
 libcmpiutilinc_HEADERS = libcmpiutil.h \
                   std_invokemethod.h \
                   std_association.h \
-                  std_indication.h
+                  std_indication.h \
+                  std_instance.h
 
 libcmpiutil_la_SOURCES = args_util.c instance_util.c std_invokemethod.c \
                          std_association.c inst_list.c std_indication.c \
