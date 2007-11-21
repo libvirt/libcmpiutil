@@ -4,7 +4,7 @@ Summary: CMPI Utility Library
 Name: libcmpiutil
 Version: @PACKAGE_VERSION@
 Release: 1%{?dist}%{?extra_release}
-License: LGPL
+License: LGPLv2+
 Group: Development/Libraries
 Source: libcmpiutil-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
@@ -26,6 +26,7 @@ Summary: Libraries, includes, etc. to use the CMPI utility library
 Group: Development/Libraries
 Requires: tog-pegasus-devel
 Requires: pkgconfig
+Requires: %{name} = %{version}-%{release}
 
 %description devel
 Includes and documentations for the CMPI utility library
@@ -36,42 +37,41 @@ instance properties to standardizing method dispatch and argument checking.
 
 %prep
 %setup -q
+chmod -x *.c *.y *.h *.l
 
 %build
 %configure
-make
+make %{?_smp_mflags}
 
 %install
-rm -fr %{buildroot}
+rm -fr $RPM_BUILD_ROOT
 
-%makeinstall
+make DESTDIR=$RPM_BUILD_ROOT install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 
 %clean
-rm -fr %{buildroot}
+rm -fr $RPM_BUILD_ROOT
 
-%post
-/sbin/ldconfig
+%post -p /sbin/ldconfig
 
-%postun
-/sbin/ldconfig
+%postun -p /sbin/ldconfig
 
 %files 
 %defattr(-, root, root)
 
-%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches README
+%doc doc/doxygen.conf doc/mainpage README
 %{_libdir}/lib*.so.*
 
 %files devel
 %defattr(-, root, root)
 
 %{_libdir}/lib*.so
-%dir %{_includedir}/
+%dir %{_includedir}/libcmpiutil
 %{_includedir}/libcmpiutil/*.h
 %{_libdir}/pkgconfig/libcmpiutil.pc
 
-%doc doc/doxygen.conf doc/mainpage doc/SubmittingPatches README
+%doc doc/SubmittingPatches
 
 %changelog
 * Fri Oct 26 2007 Daniel Veillard <veillard@redhat.com> - 0.1-1
