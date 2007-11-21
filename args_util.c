@@ -36,7 +36,7 @@ char *cu_get_str_path(const CMPIObjectPath *reference, const char *key)
 {
         CMPIData data;
         CMPIStatus s;
-        char *value;
+        const char *value;
         
         data = CMGetKey(reference, key, &s);
         if ((s.rc != CMPI_RC_OK) || 
@@ -186,7 +186,7 @@ CMPIrc cu_get_str_prop(const CMPIInstance *inst,
 {
         CMPIData value;
         CMPIStatus s;
-        char *prop_val;
+        const char *prop_val;
 
         *target = NULL;
         

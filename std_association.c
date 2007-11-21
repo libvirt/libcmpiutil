@@ -76,7 +76,7 @@ static bool match_class(const CMPIBroker *broker,
 }
 
 static CMPIStatus filter_results(struct inst_list *list,
-                                 char *ns,
+                                 const char *ns,
                                  const char *filter_class,
                                  const CMPIBroker *broker)
 {
