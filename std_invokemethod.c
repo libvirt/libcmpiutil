@@ -100,9 +100,9 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
         }
 
         if (h == NULL) {
-                CMSetStatusWithChars(ctx->broker, &s,
-                                     CMPI_RC_ERR_FAILED,
-                                     "Unknown Method");
+                cu_statusf(ctx->broker, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unknown Method");
                 goto exit;
         }
 
