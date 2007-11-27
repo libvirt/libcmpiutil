@@ -48,5 +48,5 @@ clean-local:
 	rm -f $(BUILT_SOURCES) *~
 
 rpm: clean
-	@(unset CDPATH ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.gz)
+	@(unset CDPATH ; chmod 0644 libcmpiutil.spec ; $(MAKE) dist && rpmbuild -ta $(distdir).tar.gz)
 

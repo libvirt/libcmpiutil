@@ -5,7 +5,7 @@ Name: libcmpiutil
 Version: @PACKAGE_VERSION@
 Release: 1%{?dist}%{?extra_release}
 License: LGPLv2+
-Group: Development/Libraries
+Group: System Environment/Libraries
 Source: libcmpiutil-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root
 URL: http://libvirt.org/CIM/
@@ -40,13 +40,13 @@ instance properties to standardizing method dispatch and argument checking.
 chmod -x *.c *.y *.h *.l
 
 %build
-%configure
+%configure --enable-static=no
 make %{?_smp_mflags}
 
 %install
 rm -fr $RPM_BUILD_ROOT
 
-make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT INSTALL="install -p" install
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.la
 rm -f $RPM_BUILD_ROOT%{_libdir}/*.a
 
@@ -58,13 +58,13 @@ rm -fr $RPM_BUILD_ROOT
 %postun -p /sbin/ldconfig
 
 %files 
-%defattr(-, root, root)
+%defattr(-, root, root, -)
 
-%doc doc/doxygen.conf doc/mainpage README
+%doc doc/doxygen.conf doc/mainpage README COPYING
 %{_libdir}/lib*.so.*
 
 %files devel
-%defattr(-, root, root)
+%defattr(-, root, root, -)
 
 %{_libdir}/lib*.so
 %dir %{_includedir}/libcmpiutil
