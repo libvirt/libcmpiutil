@@ -91,18 +91,22 @@ const char *cu_check_args(const CMPIArgs *args, const char **names);
  *
  * @param args The argument list to search
  * @param name The name of the argument
- * @returns The string argument's value, or NULL if error (must be free()'d)
+ * @param val The value of the argument (must be free()'d)
+ * @returns CMPI_RC_OK if successful
  */
-char *cu_get_str_arg(const CMPIArgs *args, const char *name);
+CMPIrc cu_get_str_arg(const CMPIArgs *args, const char *name, const char **val);
 
 /**
  * Get a reference argument
  *
  * @param args The argument list to search
  * @param name The name of the argument
- * @returns The reference argument's value, or NULL if error
+ * @param op The reference argument's value
+ * @returns CMPI_RC_OK if successful
  */
-CMPIObjectPath *cu_get_ref_arg(const CMPIArgs *args, const char *name);
+CMPIrc cu_get_ref_arg(const CMPIArgs *args,
+                      const char *name,
+                      CMPIObjectPath **op);
 
 /**
  * Get an instance argument
@@ -111,7 +115,9 @@ CMPIObjectPath *cu_get_ref_arg(const CMPIArgs *args, const char *name);
  * @param name The name of the argument
  * @returns The instance argument's value, or NULL if error
  */
-CMPIInstance *cu_get_inst_arg(const CMPIArgs *args, const char *name);
+CMPIrc cu_get_inst_arg(const CMPIArgs *args,
+                       const char *name,
+                       CMPIInstance **inst);
 
 /**
  * Get an array argument
@@ -120,7 +126,9 @@ CMPIInstance *cu_get_inst_arg(const CMPIArgs *args, const char *name);
  * @param name The name of the argument
  * @returns The array argument's value, or NULL if error
  */
-CMPIArray *cu_get_array_arg(const CMPIArgs *args, const char *name);
+CMPIrc cu_get_array_arg(const CMPIArgs *args,
+                        const char *name,
+                        CMPIArray **array);
 
 /**
  * Get a uint16 argument
@@ -128,18 +136,22 @@ CMPIArray *cu_get_array_arg(const CMPIArgs *args, const char *name);
  * @param args The argument list to search
  * @param name The name of the argument
  * @param target The uint16_t to reflect the argument value
- * @returns nonzero on success, zero otherwise
+ * @returns CMPI_RC_OK if successful
  */
-int cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target);
+CMPIrc cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target);
 
 /**
  * Get a string component of an object path
  *
- * @param reference The object path
+ * @param ref The object path
  * @param key The name of the component to return
- * @returns The value of the component, or NULL if error (must be free()'d)
+ * @param val The value of the component, or NULL if error (must be
+ *            free()'d)
+ * @returns CMPI_RC_OK on success
  */
-char *cu_get_str_path(const CMPIObjectPath *reference, const char *key);
+CMPIrc cu_get_str_path(const CMPIObjectPath *ref,
+                       const char *key,
+                       const char **val);
 
 /**
  * Get a uint16 component of an object path
@@ -147,11 +159,11 @@ char *cu_get_str_path(const CMPIObjectPath *reference, const char *key);
  * @param reference The object path
  * @param key The name of the component to return
  * @param target A pointer to the uint16 to set
- * @returns nonzero on success, zero otherwise
+ * @returns CMPI_RC_OK if successful
  */
-int cu_get_u16_path(const CMPIObjectPath *reference,
-                    const char *key,
-                    uint16_t *target);
+CMPIrc cu_get_u16_path(const CMPIObjectPath *reference,
+                       const char *key,
+                       uint16_t *target);
 
 /* Forward declaration */
 struct inst_list;
@@ -202,7 +214,7 @@ unsigned int cu_return_instance_names(const CMPIResult *results,
  */
 CMPIrc cu_get_str_prop(const CMPIInstance *inst,
                        const char *prop,
-                       char **target);
+                       const char **target);
 
 /**
  * Get a boolean property of an instance

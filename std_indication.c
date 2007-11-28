@@ -49,7 +49,8 @@ static CMPIStatus raise(struct std_indication_ctx *ctx,
         if (ctx->handler->raise_fn == NULL)
                 return (CMPIStatus){CMPI_RC_OK, NULL};
 
-        inst = cu_get_inst_arg(argsin, "Indication");
+        if (cu_get_inst_arg(argsin, "Indication", &inst) != CMPI_RC_OK)
+                return (CMPIStatus){CMPI_RC_ERR_FAILED, NULL};
 
         return ctx->handler->raise_fn(context, inst);
 }

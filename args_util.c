@@ -32,7 +32,9 @@
 
 #define CU_WEAK_TYPES 1
 
-char *cu_get_str_path(const CMPIObjectPath *reference, const char *key)
+CMPIrc cu_get_str_path(const CMPIObjectPath *reference,
+                       const char *key,
+                       const char **val)
 {
         CMPIData data;
         CMPIStatus s;
@@ -42,18 +44,20 @@ char *cu_get_str_path(const CMPIObjectPath *reference, const char *key)
         if ((s.rc != CMPI_RC_OK) || 
             CMIsNullValue(data) || 
             CMIsNullObject(data.value.string))
-                return NULL;
+                return CMPI_RC_ERR_FAILED;
 
         value = CMGetCharPtr(data.value.string);
         if ((value == NULL) || (*value == '\0'))
-                return NULL;
+                return CMPI_RC_ERR_TYPE_MISMATCH;
 
-        return strdup(value);
+        *val = value;
+
+        return CMPI_RC_OK;
 }
 
-int cu_get_u16_path(const CMPIObjectPath *reference,
-                    const char *key,
-                    uint16_t *target)
+CMPIrc cu_get_u16_path(const CMPIObjectPath *reference,
+                       const char *key,
+                       uint16_t *target)
 {
         CMPIData data;
         CMPIStatus s;
@@ -61,11 +65,11 @@ int cu_get_u16_path(const CMPIObjectPath *reference,
         data = CMGetKey(reference, key, &s);
         if ((s.rc != CMPI_RC_OK) ||
             CMIsNullValue(data))
-                return 0;
+                return CMPI_RC_ERR_FAILED;
 
         *target = data.value.uint16;
 
-        return 1;
+        return CMPI_RC_OK;
 }
 
 const char *cu_check_args(const CMPIArgs *args, const char **names)
@@ -85,92 +89,101 @@ const char *cu_check_args(const CMPIArgs *args, const char **names)
         return NULL;
 }
 
-char *cu_get_str_arg(const CMPIArgs *args, const char *name)
+CMPIrc cu_get_str_arg(const CMPIArgs *args, const char *name, const char **val)
 {
         CMPIData argdata;
-        char *argval;
         CMPIStatus s;
 
         argdata = CMGetArg(args, name, &s);
         if ((s.rc != CMPI_RC_OK) || (CMIsNullValue(argdata)))
-                return NULL;
+                return CMPI_RC_ERR_INVALID_PARAMETER;
 
         if ((argdata.type != CMPI_string) || 
             CMIsNullObject(argdata.value.string))
-                return NULL;
+                return CMPI_RC_ERR_TYPE_MISMATCH;
 
-        argval = strdup(CMGetCharPtr(argdata.value.string));
+        *val = CMGetCharPtr(argdata.value.string);
 
-        return argval;
+        return CMPI_RC_OK;
 }
 
-CMPIObjectPath *cu_get_ref_arg(const CMPIArgs *args, const char *name)
+CMPIrc cu_get_ref_arg(const CMPIArgs *args,
+                      const char *name,
+                      CMPIObjectPath **op)
 {
         CMPIData argdata;
         CMPIStatus s;
 
         argdata = CMGetArg(args, name, &s);
         if ((s.rc != CMPI_RC_OK) || (CMIsNullValue(argdata)))
-                return NULL;
+                return CMPI_RC_ERR_INVALID_PARAMETER;
 
         if ((argdata.type != CMPI_ref) || CMIsNullObject(argdata.value.ref))
-                return NULL;
+                return CMPI_RC_ERR_TYPE_MISMATCH;
 
-        return argdata.value.ref;
+        *op = argdata.value.ref;
+
+        return CMPI_RC_OK;
 }
 
-CMPIInstance *cu_get_inst_arg(const CMPIArgs *args, const char *name)
+CMPIrc cu_get_inst_arg(const CMPIArgs *args,
+                       const char *name,
+                       CMPIInstance **inst)
 {
         CMPIData argdata;
         CMPIStatus s;
 
         argdata = CMGetArg(args, name, &s);
-        if ((s.rc != CMPI_RC_OK) || (CMIsNullValue(argdata))) {
-                return NULL;
-        }
+        if ((s.rc != CMPI_RC_OK) || (CMIsNullValue(argdata)))
+                return CMPI_RC_ERR_INVALID_PARAMETER;
 
         if ((argdata.type != CMPI_instance) ||
-            CMIsNullObject(argdata.value.inst)) {
-                return NULL;
-        }
+            CMIsNullObject(argdata.value.inst))
+                CMPI_RC_ERR_TYPE_MISMATCH;
 
-        return argdata.value.inst;
+        *inst = argdata.value.inst;
+
+        return CMPI_RC_OK;
 }
 
-CMPIArray *cu_get_array_arg(const CMPIArgs *args, const char *name)
+CMPIrc cu_get_array_arg(const CMPIArgs *args,
+                        const char *name,
+                        CMPIArray **array)
 {
         CMPIData argdata;
         CMPIStatus s;
         
         argdata = CMGetArg(args, name, &s);
         if ((s.rc != CMPI_RC_OK) || CMIsNullValue(argdata))
-                return NULL;
+                return CMPI_RC_ERR_INVALID_PARAMETER;
 
         if (!CMIsArray(argdata) || CMIsNullObject(argdata.value.array))
-                return NULL;
+                return CMPI_RC_ERR_TYPE_MISMATCH;
 
-        return argdata.value.array;
+        *array = argdata.value.array;
+
+        return CMPI_RC_OK;
 }
 
-int cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target)
+CMPIrc cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target)
 {
         CMPIData argdata;
         CMPIStatus s;
 
         argdata = CMGetArg(args, name, &s);
         if ((s.rc != CMPI_RC_OK) || CMIsNullValue(argdata))
-                return 0;
+                return CMPI_RC_ERR_INVALID_PARAMETER;
 
 #ifdef CU_WEAK_TYPES
         if (!(argdata.type & CMPI_INTEGER))
 #else
         if (argdata.type != CMPI_uint16)
 #endif
-                return 0;
+                return CMPI_RC_ERR_TYPE_MISMATCH;
 
         *target = argdata.value.uint16;
 
-        return 1;
+        return CMPI_RC_OK;
 }
 
 #define REQUIRE_PROPERTY_DEFINED(i, p, pv, s)                           \
@@ -182,7 +195,7 @@ int cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target)
 
 CMPIrc cu_get_str_prop(const CMPIInstance *inst,
                        const char *prop,
-                       char **target)
+                       const char **target)
 {
         CMPIData value;
         CMPIStatus s;
@@ -198,8 +211,7 @@ CMPIrc cu_get_str_prop(const CMPIInstance *inst,
         if ((prop_val = CMGetCharPtr(value.value.string)) == NULL)
                 return CMPI_RC_ERROR;
 
-        if ((*target = strdup(prop_val)) == NULL)
-                return CMPI_RC_ERROR;
+        *target = prop_val;
 
         return CMPI_RC_OK;
 }
