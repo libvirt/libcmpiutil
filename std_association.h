@@ -37,13 +37,13 @@ typedef CMPIInstance *(*make_ref_t)(const CMPIObjectPath *,
                                     struct std_assoc *);
 
 struct std_assoc {
-        char *source_class;
+        char **source_class;
         char *source_prop;
 
-        char *target_class;
+        char **target_class;
         char *target_prop;
     
-        char *assoc_class;
+        char **assoc_class;
 
         assoc_handler_t handler;
         make_ref_t make_ref;

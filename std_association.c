@@ -61,18 +61,44 @@ static bool match_op(const CMPIBroker *broker,
 static bool match_class(const CMPIBroker *broker,
                         const char *ns,
                         const char *test_class,
-                        const char *comp_class)
+                        char **comp_class_list)
 {
         CMPIObjectPath *rop;
+        char *comp_class;
+        int i;
 
         rop = CMNewObjectPath(broker, ns, test_class, NULL);
 
-        if ((test_class == NULL) ||
-            (comp_class == NULL) ||
-            match_op(broker, rop, comp_class))
-                return true;
-        else
-                return false;
+        for (i = 0; comp_class_list[i]; i++) {
+                comp_class = comp_class_list[i];
+
+                if ((test_class == NULL) ||
+                    (comp_class == NULL) ||
+                    match_op(broker, rop, comp_class))
+                        return true;
+        }
+
+        return false;
+}
+
+static bool match_source_class(const CMPIBroker *broker,
+                               const CMPIObjectPath *ref,
+                               struct std_assoc *ptr)
+{
+        char *source_class;
+        int i;
+
+        for (i = 0; ptr->source_class[i]; i++) {
+                source_class = ptr->source_class[i];
+                
+                if (CMClassPathIsA(broker, 
+                                   ref, 
+                                   source_class, 
+                                   NULL))
+                        return true;
+        }
+
+        return false;
 }
 
 static CMPIStatus filter_results(struct inst_list *list,
@@ -113,13 +139,13 @@ static struct std_assoc *
 std_assoc_get_handler(const struct std_assoc_ctx *ctx,
                       const CMPIObjectPath *ref)
 {
-        struct std_assoc *ptr;
+        struct std_assoc *ptr = NULL;
         int i;
 
         for (i = 0; ctx->handlers[i]; i++) {
                 ptr = ctx->handlers[i];
 
-                if (CMClassPathIsA(ctx->brkr, ref, ptr->source_class, NULL))
+                if (match_source_class(ctx->brkr, ref, ptr))
                         return ptr;
         }
 
