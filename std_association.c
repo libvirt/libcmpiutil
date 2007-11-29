@@ -170,9 +170,6 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
         handler = std_assoc_get_handler(ctx, ref);
         if (handler == NULL) {
                 CU_DEBUG("No handler found.");
-                cu_statusf(ctx->brkr, &s,
-                           CMPI_RC_ERR_FAILED,
-                           "Unable to handle this association");
                 goto out;
         }
 
@@ -269,9 +266,7 @@ static CMPIStatus do_ref(struct std_assoc_ctx *ctx,
 
         handler = std_assoc_get_handler(ctx, ref);
         if (handler == NULL) {
-                cu_statusf(ctx->brkr, &s,
-                           CMPI_RC_ERR_FAILED,
-                           "Unable to handle this association");
+                CU_DEBUG("No handler found.");
                 goto out;
         }
 
