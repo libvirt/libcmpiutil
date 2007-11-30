@@ -397,8 +397,8 @@ CMPIStatus stda_ReferenceNames(CMPIAssociationMI *self,
                                const char *role)
 {
         struct std_assoc_info info = {
-                NULL,
                 resultClass,
+                NULL,
                 role,
                 NULL,
                 NULL,
@@ -418,8 +418,8 @@ CMPIStatus stda_References(CMPIAssociationMI *self,
                            const char **properties)
 {
         struct std_assoc_info info = {
-                NULL,
                 resultClass,
+                NULL,
                 role,
                 NULL,
                 properties,
