@@ -1,5 +1,5 @@
-# Copyright IBM Corp. 2007
 #!/usr/bin/python
+# Copyright IBM Corp. 2007
 #
 # indication_tester.py - Tool for testing indication subscription and
 #                        delivery against a CIMOM
@@ -325,22 +325,20 @@ class CIMIndicationSubscription:
         self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Filter"))
 
 def main():
-    parser = OptionParser()
-    parser.add_option("-u", "--url", dest="url",
+    parser = OptionParser(usage="usage: %prog [options] type")
+    parser.add_option("-u", "--url", dest="url", default="localhost:5988",
                       help="URL of CIMOM to connect to (host:port)")
-    parser.add_option("-N", "--ns", dest="ns",
-                      help="Namespace (default is root/ibmsd)")
-    parser.add_option("-n", "--name", dest="name",
+    parser.add_option("-N", "--ns", dest="ns", default="root/virt",
+                      help="Namespace (default is root/virt)")
+    parser.add_option("-n", "--name", dest="name", default="Test",
                       help="Base name for filter, handler, subscription")
 
     (options, args) = parser.parse_args()
-    if not options.url:
-        options.url = "localhost:5988"
-    if not options.ns:
-        options.ns = "root/ibmsd"
-    if not options.name:
-        options.name = "Test"
 
+    if len(args) == 0:
+        print "Fatal: no indication type provided."
+        sys.exit(1)
+    
     sub = CIMIndicationSubscription(options.name, args[0], options.ns)
     sub.subscribe(options.url)
     print "Watching for %s" % args[0]
