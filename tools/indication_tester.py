@@ -325,13 +325,16 @@ class CIMIndicationSubscription:
         self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Filter"))
 
 def main():
-    parser = OptionParser(usage="usage: %prog [options] type")
+    usage = "usage: %prog [options] provider\nex: %prog CIM_InstModification"
+    parser = OptionParser(usage)
+    
     parser.add_option("-u", "--url", dest="url", default="localhost:5988",
                       help="URL of CIMOM to connect to (host:port)")
     parser.add_option("-N", "--ns", dest="ns", default="root/virt",
                       help="Namespace (default is root/virt)")
     parser.add_option("-n", "--name", dest="name", default="Test",
-                      help="Base name for filter, handler, subscription")
+                      help="Name for filter, handler, subscription \
+                      (default: Test)")
 
     (options, args) = parser.parse_args()
 
