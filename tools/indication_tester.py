@@ -324,6 +324,21 @@ class CIMIndicationSubscription:
         self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Handler"))
         self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Filter"))
 
+def dump_xml(name, typ, ns):
+    filter_str = filter_xml(name, typ, ns)
+    handler_str = handler_xml(name, 8000)
+    subscript_str = subscription_xml(name)
+    del_filter_str = delete_inst_xml(name, "Filter")
+    del_handler_str = delete_inst_xml(name, "Handler")
+    del_subscript_str = delete_sub_xml(name)
+
+    print "CreateFilter:\n%s\n" % filter_str
+    print "DeleteFilter:\n%s\n" % del_filter_str
+    print "CreateHandler:\n%s\n" % handler_str
+    print "DeleteHandler:\n%s\n" % del_handler_str
+    print "CreateSubscription:\n%s\n" % subscript_str
+    print "DeleteSubscription:\n%s\n" % del_subscript_str
+    
 def main():
     usage = "usage: %prog [options] provider\nex: %prog CIM_InstModification"
     parser = OptionParser(usage)
@@ -335,12 +350,19 @@ def main():
     parser.add_option("-n", "--name", dest="name", default="Test",
                       help="Name for filter, handler, subscription \
                       (default: Test)")
+    parser.add_option("-d", "--dump-xml", dest="dump", default=False,
+                      action="store_true",
+                      help="Dump the xml that would be used and quit.")
 
     (options, args) = parser.parse_args()
 
     if len(args) == 0:
         print "Fatal: no indication type provided."
         sys.exit(1)
+    
+    if options.dump:
+        dump_xml(options.name, args[0], options.ns)
+        sys.exit(0)
     
     sub = CIMIndicationSubscription(options.name, args[0], options.ns)
     sub.subscribe(options.url)
