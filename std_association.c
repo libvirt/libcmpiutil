@@ -222,108 +222,111 @@ std_assoc_get_handler(const struct std_assoc_ctx *ctx,
         return NULL;
 }
 
+static CMPIStatus prepare_ref_return_list(struct std_assoc *handler,
+                                          struct std_assoc_info *info,
+                                          const CMPIObjectPath *ref,
+                                          struct inst_list *list)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        struct inst_list tmp_list;
+        int i;
+
+        tmp_list = *list;
+        if (tmp_list.list == NULL)
+                return s;
+
+        inst_list_init(list);
+
+        for (i = 0; i < tmp_list.cur; i++) {
+                CMPIInstance *refinst;
+                
+                refinst = handler->make_ref(ref, tmp_list.list[i], info, handler);
+                if (refinst == NULL)
+                        continue;
+                
+                inst_list_add(list, refinst);
+        }
+
+        inst_list_free(&tmp_list);
+        return s;
+}
+
+static CMPIStatus prepare_assoc_return_list(const CMPIBroker *broker,
+                                            struct std_assoc_info *info,
+                                            const CMPIObjectPath *ref,
+                                            struct inst_list *list)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+
+        if (list->list == NULL)
+                return s;
+
+        s = filter_results(list,
+                           NAMESPACE(ref),
+                           info->result_class,
+                           broker);
+
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("filter_results did not return CMPI_RC_OK.");
+                return s;
+        }
+        
+        return s;
+}
+
 static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                            struct std_assoc_info *info,
                            const CMPIResult *results,
                            const CMPIObjectPath *ref,
+                           bool ref_rslt,
                            bool names_only)
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
         struct inst_list list;
         struct std_assoc *handler;
 
-        inst_list_init(&list);
-
-        CU_DEBUG("Getting handler...");
+        CU_DEBUG("Getting handler ...");
         handler = std_assoc_get_handler(ctx, info, ref);
         if (handler == NULL) {
                 CU_DEBUG("No handler found.");
-                goto out;
+                return s;
         }
         CU_DEBUG("Getting handler succeeded.");
 
-        CU_DEBUG("Calling handler->handler...");
+        inst_list_init(&list);
+
+        CU_DEBUG("Calling handler ...");
         s = handler->handler(ref, info, &list);
-        
         if (s.rc != CMPI_RC_OK) {
                 CU_DEBUG("Handler did not return CMPI_RC_OK.");
                 goto out;
-        } else {
-                CU_DEBUG("Handler returned CMPI_RC_OK.");
         }
+        CU_DEBUG("Handler returned CMPI_RC_OK.");
 
-        if (list.list == NULL) {
-                CU_DEBUG("List is empty.");
-                goto out;
-        }
-
-        s = filter_results(&list,
-                           NAMESPACE(ref),
-                           info->result_class,
-                           ctx->brkr);
+        /* References and ReferenceNames */
+        if (ref_rslt)
+                s = prepare_ref_return_list(handler,
+                                            info,
+                                            ref,
+                                            &list);
+        /* Associators and AssociatorNames */
+        else
+                s = prepare_assoc_return_list(ctx->brkr,
+                                              info,
+                                              ref,
+                                              &list);
+        
         if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("filter_results did not return CMPI_RC_OK.");
+                CU_DEBUG("Prepare return list did not return CMPI_RC_OK.");
                 goto out;
         }
-
-        if (list.list == NULL) {
-                CU_DEBUG("List is empty.");
-                goto out;
-        } else {
-                CU_DEBUG("Returned %u instance(s).", list.cur);
-        }
+        CU_DEBUG("Returned %u instance(s).", list.cur);
 
         if (names_only)
                 cu_return_instance_names(results, &list);
         else
                 cu_return_instances(results, &list);
 
- out:
-        inst_list_free(&list);
-
-        return s;
-}
-
-static CMPIStatus do_ref(struct std_assoc_ctx *ctx,
-                         struct std_assoc_info *info,
-                         const CMPIResult *results,
-                         const CMPIObjectPath *ref,
-                         bool names_only)
-{
-        CMPIStatus s = {CMPI_RC_OK, NULL};
-        struct inst_list list;
-        struct std_assoc *handler;
-        int i;
-
-        inst_list_init(&list);
-
-        CU_DEBUG("Getting handler...");
-        handler = std_assoc_get_handler(ctx, info, ref);
-        if (handler == NULL) {
-                CU_DEBUG("No handler found.");
-                goto out;
-        }
-        CU_DEBUG("Getting handler succeeded.");
-
-        CU_DEBUG("Calling handler->handler...");
-        s = handler->handler(ref, info, &list);
-        if ((s.rc != CMPI_RC_OK) || (list.list == NULL))
-                goto out;
-
-        for (i = 0; i < list.cur; i++) {
-                CMPIInstance *refinst;
-
-                refinst = handler->make_ref(ref, list.list[i], info, handler);
-                if (refinst == NULL)
-                        continue;
-
-                if (names_only)
-                        cu_return_instance_name(results, refinst);
-                else
-                        CMReturnInstance(results, refinst);
-        }
-
-        CMSetStatus(&s, CMPI_RC_OK);
  out:
         inst_list_free(&list);
 
@@ -359,6 +362,7 @@ CMPIStatus stda_AssociatorNames(CMPIAssociationMI *self,
                         &info,
                         results,
                         reference,
+                        false,
                         true);
 }
 
@@ -386,6 +390,7 @@ CMPIStatus stda_Associators(CMPIAssociationMI *self,
                         &info,
                         results,
                         reference,
+                        false,
                         false);
 }
 
@@ -406,7 +411,12 @@ CMPIStatus stda_ReferenceNames(CMPIAssociationMI *self,
                 self->ft->miName,
         };
 
-        return do_ref(self->hdl, &info, results, reference, true);
+        return do_assoc(self->hdl,
+                        &info,
+                        results,
+                        reference,
+                        true,
+                        true);
 }
 
 CMPIStatus stda_References(CMPIAssociationMI *self,
@@ -427,7 +437,12 @@ CMPIStatus stda_References(CMPIAssociationMI *self,
                 self->ft->miName,
         };
 
-        return do_ref(self->hdl, &info, results, reference, false);
+        return do_assoc(self->hdl,
+                        &info,
+                        results,
+                        reference,
+                        true,
+                        false);
 }
 
 /*
