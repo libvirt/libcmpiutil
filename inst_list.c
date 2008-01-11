@@ -72,3 +72,12 @@ int inst_list_add(struct inst_list *list, CMPIInstance *inst)
         return 1;
 }
 
+/*
+ * Local Variables:
+ * mode: C
+ * c-set-style: "K&R"
+ * tab-width: 8
+ * c-basic-offset: 8
+ * indent-tabs-mode: nil
+ * End:
+ */
