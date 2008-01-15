@@ -379,6 +379,22 @@ int inst_list_add(struct inst_list *list, CMPIInstance *inst);
 const char *cu_compare_ref(const CMPIObjectPath *ref,
                            const CMPIInstance *inst);
 
+/**
+ * Validate a client given reference against the system instance.
+ * This is done by comparing the key values of the reference 
+ * against the key properties found in the system instance.
+ *
+ * @param broker A pointer to the current broker
+ * @param ref The ObjectPath to examine
+ * @param inst The Instance to compare
+ * @returns The status of the comparision:
+ *          CMPI_RC_OK in case of match
+ *          CMPI_RC_ERR_NOT_FOUND in case of not matching
+ */
+CMPIStatus cu_validate_ref(const CMPIBroker *broker,
+                           const CMPIObjectPath *ref,
+                           const CMPIInstance *inst);
+
 #define DEFAULT_EIN(pn)                                                 \
         static CMPIStatus pn##EnumInstanceNames(CMPIInstanceMI *self,   \
                                                 const CMPIContext *c,   \

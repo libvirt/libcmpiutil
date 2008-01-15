@@ -156,6 +156,23 @@ const char *cu_compare_ref(const CMPIObjectPath *ref,
         return prop;
 }
 
+CMPIStatus cu_validate_ref(const CMPIBroker *broker,
+                           const CMPIObjectPath *ref,
+                           const CMPIInstance *inst)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        const char *prop;
+        
+        prop = cu_compare_ref(ref, inst);
+        if (prop != NULL) {
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_NOT_FOUND,
+                           "No such instance (%s)", prop);
+        }
+        
+        return s;
+}
+
 CMPIStatus cu_copy_prop(const CMPIBroker *broker,
                         CMPIInstance *src_inst, CMPIInstance *dest_inst,
                         char *src_name, char *dest_name)
