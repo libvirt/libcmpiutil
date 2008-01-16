@@ -368,6 +368,13 @@ void inst_list_free(struct inst_list *list);
 int inst_list_add(struct inst_list *list, CMPIInstance *inst);
 
 /**
+ * Define a pre-initialized inst_list
+ *
+ * @param x The variable name for the list.
+ */
+#define DECLARE_INST_LIST(x) struct inst_list x = {NULL, 0, 0};
+
+/**
  * Compare key values in a reference to properties in an instance,
  * making sure they are identical.
  *
