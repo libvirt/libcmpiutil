@@ -25,8 +25,8 @@
 #include <cmpift.h>
 #include <cmpimacs.h>
 
-#include <libcmpiutil.h>
-#include <std_invokemethod.h>
+#include "libcmpiutil.h"
+#include "std_invokemethod.h"
 
 CMPIStatus stdi_trigger_indication(const CMPIBroker *broker,
                                    const CMPIContext *context,
