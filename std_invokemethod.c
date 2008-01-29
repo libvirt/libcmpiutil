@@ -30,6 +30,144 @@
 
 #define STREQ(a,b) (strcmp(a, b) == 0)
 
+static CMPIType check_for_eo(CMPIType type, CMPIType exp_type)
+{
+     if ((exp_type == CMPI_instance) && (type == CMPI_string)) {
+             return CMPI_instance;
+     }
+
+     if ((exp_type == CMPI_instanceA) && (type == CMPI_stringA)) {
+             return CMPI_instanceA;
+     }
+
+     return CMPI_null;
+}
+
+static int parse_eo_inst_arg(CMPIString *string_in,
+                             CMPIInstance **instance_out,
+                             const CMPIBroker *broker,
+                             const char *ns,
+                             CMPIStatus *s)
+{
+        int ret;
+        const char *str;
+
+        str = CMGetCharPtr(string_in);
+
+        if (str == NULL) {
+                CMSetStatus(s, CMPI_RC_ERR_INVALID_PARAMETER);
+                CU_DEBUG("Method parameter value is NULL");
+                return 0;
+        }
+
+        ret = cu_parse_embedded_instance(str,
+                                         broker,
+                                         ns,
+                                         instance_out);
+
+        /* cu_parse_embedded_instance() returns 0 on success */
+        if ((ret != 0) || CMIsNullObject(instance_out)) {
+                CMSetStatus(s, CMPI_RC_ERR_FAILED);
+                CU_DEBUG("Unable to parse embedded object");
+                return 0;
+        }
+
+        return 1; 
+}
+
+static int parse_eo_array(CMPIArray *strings_in,
+                          CMPIArray **instances_out,
+                          const CMPIBroker *broker,
+                          const char *ns,
+                          CMPIStatus *s)
+{
+        int i;
+        int ret;
+        int count;
+
+        if (CMIsNullObject(strings_in)) {
+                CMSetStatus(s, CMPI_RC_ERR_INVALID_PARAMETER);
+                CU_DEBUG("Method parameter is NULL");
+                return 0;
+        }
+
+        count = CMGetArrayCount(strings_in, NULL);
+
+        *instances_out = CMNewArray(broker,
+                                    count,
+                                    CMPI_instance,
+                                    s);
+
+        for (i = 0; i < count; i++) {
+                CMPIData item;
+                CMPIInstance *inst;
+
+                item = CMGetArrayElementAt(strings_in, i, NULL);
+
+                ret = parse_eo_inst_arg(item.value.string,
+                                        &inst,
+                                        broker,
+                                        ns,
+                                        s);
+
+                if (ret != 1) {
+                        CU_DEBUG("Parsing argument type %d failed", item.type);
+                        return 0;
+                }
+
+                CMSetArrayElementAt(*instances_out, i,
+                                    (CMPIValue *)&inst,
+                                    CMPI_instance);
+        }
+
+        return 1;
+}
+
+static int parse_eo_param(CMPIArgs *args,
+                          CMPIData data,
+                          CMPIType type,
+                          const char *arg_name,
+                          const CMPIBroker *broker,
+                          const char *ns,
+                          CMPIStatus *s)
+{
+        CMPIData newdata;
+        int ret = 0;
+
+        if (type == CMPI_instance) {
+                ret = parse_eo_inst_arg(data.value.string,
+                                        &newdata.value.inst,
+                                        broker,
+                                        ns,
+                                        s);
+        } else if (type == CMPI_instanceA) {
+                ret = parse_eo_array(data.value.array,
+                                     &newdata.value.array,
+                                     broker,
+                                     ns,
+                                     s);
+        } else {
+                CMSetStatus(s, CMPI_RC_ERR_FAILED);
+                CU_DEBUG("Unable to parse argument type %d", type);
+        }
+
+        if (ret != 1)
+                return 0;
+
+
+        *s = CMAddArg(args,
+                      arg_name,
+                      &(newdata.value),
+                      type);
+
+        if (s->rc != CMPI_RC_OK) {
+                CU_DEBUG("Unable to update method argument");
+                return 0;
+        }
+
+        return 1;
+}
+
 static int validate_arg_type(struct method_arg *arg, 
                              const CMPIArgs *args,
                              CMPIStatus *s)
