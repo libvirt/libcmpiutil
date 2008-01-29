@@ -292,14 +292,17 @@ class CIMSocketHandler(BaseHTTPServer.BaseHTTPRequestHandler):
 
         indication = CIMIndication(data)
         print "Got indication: %s" % indication
+        if self.server.print_ind:
+            print "%s\n\n" % data
 
 class CIMIndicationSubscription:
-    def __init__(self, name, typ, ns):
+    def __init__(self, name, typ, ns, print_ind):
         self.name = name
         self.type = typ
         self.ns = ns
 
         self.server = BaseHTTPServer.HTTPServer(('', 8000), CIMSocketHandler)
+        self.server.print_ind = print_ind
         self.port = 8000
 
         self.filter_xml = filter_xml(name, typ, ns)
@@ -353,6 +356,9 @@ def main():
     parser.add_option("-d", "--dump-xml", dest="dump", default=False,
                       action="store_true",
                       help="Dump the xml that would be used and quit.")
+    parser.add_option("-p", "--print-ind", dest="print_ind", default=False,
+                      action="store_true",
+                      help="Print received indications to stdout.")
 
     (options, args) = parser.parse_args()
 
@@ -364,7 +370,8 @@ def main():
         dump_xml(options.name, args[0], options.ns)
         sys.exit(0)
     
-    sub = CIMIndicationSubscription(options.name, args[0], options.ns)
+    sub = CIMIndicationSubscription(options.name, args[0], options.ns,
+                                    options.print_ind)
     sub.subscribe(options.url)
     print "Watching for %s" % args[0]
 
