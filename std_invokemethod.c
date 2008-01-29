@@ -170,9 +170,14 @@ static int parse_eo_param(CMPIArgs *args,
 
 static int validate_arg_type(struct method_arg *arg, 
                              const CMPIArgs *args,
+                             const CMPIBroker *broker, 
+                             const char *ns,
+                             CMPIArgs *new_args,
                              CMPIStatus *s)
 {
         CMPIData argdata;
+        CMPIType type;
+        int ret;
 
         argdata = CMGetArg(args, arg->name, s);
         if ((s->rc != CMPI_RC_OK) || (CMIsNullValue(argdata))) {
@@ -183,10 +188,34 @@ static int validate_arg_type(struct method_arg *arg,
         }
 
         if (argdata.type != arg->type) {
-                CMSetStatus(s, CMPI_RC_ERR_TYPE_MISMATCH);
-                CU_DEBUG("Method parameter `%s' type check failed",
-                         arg->name);
-                return 0;
+                type = check_for_eo(argdata.type, arg->type);
+                if (type != CMPI_null) {
+                        ret = parse_eo_param(new_args,
+                                             argdata,
+                                             type,
+                                             arg->name,
+                                             broker,
+                                             ns,
+                                             s);
+
+                        if (ret != 1)
+                                return 0;
+                } else {
+                        CMSetStatus(s, CMPI_RC_ERR_TYPE_MISMATCH);
+                        CU_DEBUG("Method parameter `%s' type check failed",
+                                 arg->name);
+                        return 0;
+                }
+        } else {
+                *s = CMAddArg(new_args,
+                              arg->name,
+                              &(argdata.value),
+                              argdata.type);
+
+                if (s->rc != CMPI_RC_OK) {
+                        CU_DEBUG("Unable to update method argument");
+                        return 0;
+                }
         }
 
         CU_DEBUG("Method parameter `%s' validated type 0x%x",
@@ -197,19 +226,31 @@ static int validate_arg_type(struct method_arg *arg,
 }
 
 static int validate_args(struct method_handler *h, 
-                         const CMPIArgs *args,
+                         const CMPIArgs **args,
+                         const CMPIObjectPath *ref,
+                         const CMPIBroker *broker,
                          CMPIStatus *s)
 {
+        CMPIArgs *new_args;
         int i;
+
+        new_args = CMNewArgs(broker, s);
 
         for (i = 0; h->args[i].name; i++) {
                 int ret;
                 struct method_arg *arg = &h->args[i];
 
-                ret = validate_arg_type(arg, args, s);
+                ret = validate_arg_type(arg, 
+                                        *args, 
+                                        broker, 
+                                        NAMESPACE(ref), 
+                                        new_args,
+                                        s);
                 if (!ret)
                         return 0;
         }
+
+        *args = new_args;
 
         return 1;
 }
@@ -244,7 +285,11 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
                 goto exit;
         }
 
-        ret = validate_args(h, argsin, &s);
+        ret = validate_args(h, 
+                            &argsin, 
+                            reference,
+                            ctx->broker, 
+                            &s);
         if (!ret)
                 goto exit;
 
