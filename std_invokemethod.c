@@ -92,7 +92,7 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
 
         CU_DEBUG("Method `%s' execution attempted", methodname);
 
-        for (hi = 0; ctx->handlers[hi]->name; hi++) {
+        for (hi = 0; ctx->handlers[hi]; hi++) {
                 if (STREQ(methodname, ctx->handlers[hi]->name)) {
                         h = ctx->handlers[hi];
                         break;
