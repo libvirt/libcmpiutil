@@ -9,9 +9,10 @@ import sys
 from optparse import OptionParser
 import BaseHTTPServer
 import httplib
+import base64
 from xml.dom.minidom import parse, parseString
 
-def filter_xml(name, type, ns):
+def filter_xml(name, type, ns, sysname):
     return """
     <?xml version="1.0" encoding="utf-8"?> 
     <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
@@ -28,7 +29,7 @@ def filter_xml(name, type, ns):
                   <VALUE>CIM_ComputerSystem</VALUE> 
                 </PROPERTY> 
                 <PROPERTY NAME="SystemName" TYPE="string"> 
-                  <VALUE>localhost.localdomain</VALUE> 
+                  <VALUE>%s</VALUE> 
                 </PROPERTY> 
                 <PROPERTY NAME="CreationClassName" TYPE="string"> 
                   <VALUE>CIM_IndicationFilter</VALUE> 
@@ -52,9 +53,9 @@ def filter_xml(name, type, ns):
         </SIMPLEREQ> 
       </MESSAGE> 
     </CIM>
-    """ % (name, type, ns)
+    """ % (sysname, name, type, ns)
 
-def handler_xml(name, port):
+def handler_xml(name, port, sysname):
     return """
     <?xml version="1.0" encoding="utf-8"?> 
     <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
@@ -71,7 +72,7 @@ def handler_xml(name, port):
                   <VALUE>CIM_ComputerSystem</VALUE> 
                 </PROPERTY> 
                 <PROPERTY NAME="SystemName" TYPE="string"> 
-                  <VALUE>localhost.localdomain</VALUE> 
+                  <VALUE>%s</VALUE> 
                 </PROPERTY> 
                 <PROPERTY NAME="CreationClassName" TYPE="string"> 
                   <VALUE>CIM_IndicationHandlerCIMXML</VALUE> 
@@ -88,9 +89,9 @@ def handler_xml(name, port):
         </SIMPLEREQ> 
       </MESSAGE> 
       </CIM>
-      """ % (name, port)
+      """ % (sysname, name, port)
 
-def subscription_xml(name):
+def subscription_xml(name, sysname):
     return """
     <?xml version="1.0" encoding="utf-8"?> 
     <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
@@ -114,7 +115,7 @@ def subscription_xml(name):
                       </KEYBINDING> 
                       <KEYBINDING NAME="SystemName"> 
                         <KEYVALUE VALUETYPE="string"> 
-                        localhost.localdomain 
+                        %s 
                         </KEYVALUE> 
                       </KEYBINDING> 
                       <KEYBINDING NAME="CreationClassName"> 
@@ -141,7 +142,7 @@ def subscription_xml(name):
                       </KEYBINDING> 
                       <KEYBINDING NAME="SystemName"> 
                         <KEYVALUE VALUETYPE="string"> 
-                        localhost.localdomain 
+                        %s
                         </KEYVALUE> 
                       </KEYBINDING> 
                       <KEYBINDING NAME="CreationClassName"> 
@@ -166,9 +167,9 @@ def subscription_xml(name):
         </SIMPLEREQ> 
       </MESSAGE> 
       </CIM>
-      """ % (name, name)
+      """ % (sysname, name, sysname, name)
 
-def delete_inst_xml(name, type):
+def delete_inst_xml(name, type, sysname):
     return """
     <?xml version="1.0" encoding="utf-8"?> 
     <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
@@ -185,7 +186,7 @@ def delete_inst_xml(name, type):
                   <KEYVALUE>CIM_ComputerSystem</KEYVALUE> 
                 </KEYBINDING> 
                 <KEYBINDING NAME="SystemName"> 
-                  <KEYVALUE>localhost.localdomain</KEYVALUE> 
+                  <KEYVALUE>%s</KEYVALUE> 
                 </KEYBINDING> 
                 <KEYBINDING NAME="CreationClassName"> 
                   <KEYVALUE>CIM_Indication%sCIMXML</KEYVALUE> 
@@ -199,9 +200,9 @@ def delete_inst_xml(name, type):
         </SIMPLEREQ> 
       </MESSAGE> 
     </CIM>;
-    """ % (type, type, name, type);
+    """ % (type, sysname, type, name, type);
 
-def delete_sub_xml(name):
+def delete_sub_xml(name, sysname):
     return """
     <?xml version="1.0" encoding="utf-8"?> 
     <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
@@ -224,7 +225,7 @@ def delete_sub_xml(name):
                       </KEYBINDING> 
                       <KEYBINDING NAME="SystemName"> 
                         <KEYVALUE VALUETYPE="string"> 
-                        localhost.localdomain 
+                        %s
                         </KEYVALUE> 
                       </KEYBINDING> 
                       <KEYBINDING NAME="CreationClassName"> 
@@ -250,7 +251,7 @@ def delete_sub_xml(name):
                       </KEYBINDING> 
                       <KEYBINDING NAME="SystemName"> 
                         <KEYVALUE VALUETYPE="string"> 
-                        localhost.localdomain 
+                        %s
                         </KEYVALUE> 
                       </KEYBINDING> 
                       <KEYBINDING NAME="CreationClassName"> 
@@ -272,7 +273,7 @@ def delete_sub_xml(name):
         </SIMPLEREQ> 
       </MESSAGE> 
     </CIM>;
-    """ % (name, name)
+    """ % (sysname, name, sysname, name)
 
 class CIMIndication:
     def __init__(self, xmldata):
@@ -296,36 +297,67 @@ class CIMSocketHandler(BaseHTTPServer.BaseHTTPRequestHandler):
             print "%s\n\n" % data
 
 class CIMIndicationSubscription:
-    def __init__(self, name, typ, ns, print_ind):
+    def __init__(self, name, typ, ns, print_ind, sysname):
         self.name = name
         self.type = typ
         self.ns = ns
+        self.sysname = sysname
 
         self.server = BaseHTTPServer.HTTPServer(('', 8000), CIMSocketHandler)
         self.server.print_ind = print_ind
         self.port = 8000
 
-        self.filter_xml = filter_xml(name, typ, ns)
-        self.handler_xml = handler_xml(name, self.port)
-        self.subscription_xml = subscription_xml(name)
+        self.filter_xml = filter_xml(name, typ, ns, sysname)
+        self.handler_xml = handler_xml(name, self.port, sysname)
+        self.subscription_xml = subscription_xml(name, sysname)
 
-    def __do_cimpost(self, conn, body):
-        conn.request("POST", "/cimom", body, {"CIMOperation" : "MethodCall"})
+    def __do_cimpost(self, conn, body, method, auth_hdr=None):
+        headers = {"CIMOperation" : "MethodCall",
+                   "CIMMethod"    : method,
+                   "CIMObject"    : "root/PG_Interop",
+                   "Content-Type" : "text/cimxml"}
+ 
+        if auth_hdr:
+            headers["Authorization"] = "Basic %s" % auth_hdr
+
+        conn.request("POST", "/cimom", body, headers)
         resp = conn.getresponse()
+        if not resp.getheader("content-length"):
+            raise Exception("Authentication (or request) Failed!")
 
         resp.read()
 
-    def subscribe(self, url):
+    def subscribe(self, url, cred=None):
         self.conn = httplib.HTTPConnection(url)
+        if cred:
+            (u, p) = cred
+            auth_hdr = base64.b64encode("%s:%s" % (u, p))
+        else:
+            auth_hdr = None
 
-        self.__do_cimpost(self.conn, self.filter_xml)
-        self.__do_cimpost(self.conn, self.handler_xml)
-        self.__do_cimpost(self.conn, self.subscription_xml)
+        self.__do_cimpost(self.conn, self.filter_xml,
+                          "CreateInstance", auth_hdr)
+        self.__do_cimpost(self.conn, self.handler_xml,
+                          "CreateInstance", auth_hdr)
+        self.__do_cimpost(self.conn, self.subscription_xml,
+                          "CreateInstance", auth_hdr)
 
-    def unsubscribe(self):
-        self.__do_cimpost(self.conn, delete_sub_xml(self.name))
-        self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Handler"))
-        self.__do_cimpost(self.conn, delete_inst_xml(self.name, "Filter"))
+    def unsubscribe(self, cred=None):
+        if cred:
+            (u, p) = cred
+            auth_hdr = base64.b64encode("%s:%s" % (u, p))
+        else:
+            auth_hdr = None
+
+        xml = delete_sub_xml(self.name, self.sysname)
+        self.__do_cimpost(self.conn, xml,
+                          "DeleteInstance", auth_hdr)
+        xml = delete_inst_xml(self.name, "Handler", self.sysname)
+        self.__do_cimpost(self.conn, xml,
+                          "DeleteInstance", auth_hdr)
+        xml = delete_inst_xml(self.name, "Filter", self.sysname)
+        self.__do_cimpost(self.conn, xml,
+                          "DeleteInstance", auth_hdr)
 
 def dump_xml(name, typ, ns):
     filter_str = filter_xml(name, typ, ns)
@@ -359,6 +391,10 @@ def main():
     parser.add_option("-p", "--print-ind", dest="print_ind", default=False,
                       action="store_true",
                       help="Print received indications to stdout.")
+    parser.add_option("-U", "--user", dest="username", default=None,
+                      help="HTTP Auth username", dest="username")
+    parser.add_option("-P", "--pass", dest="password", default=None,
+                      help="HTTP Auth password", dest="password")
 
     (options, args) = parser.parse_args()
 
@@ -369,16 +405,26 @@ def main():
     if options.dump:
         dump_xml(options.name, args[0], options.ns)
         sys.exit(0)
+
+    if options.username:
+        auth = (options.username, options.password)
+    else:
+        auth = None
+    
+    if ":" in options.url:
+        (sysname, port) = options.url.split(":")
+    else:
+        sysname = url
     
     sub = CIMIndicationSubscription(options.name, args[0], options.ns,
-                                    options.print_ind)
-    sub.subscribe(options.url)
+                                    options.print_ind, sysname)
+    sub.subscribe(options.url, auth)
     print "Watching for %s" % args[0]
 
     try:
         sub.server.serve_forever()
     except KeyboardInterrupt,e:
-        sub.unsubscribe()
+        sub.unsubscribe(auth)
         print "Cancelling subscription for %s" % args[0]
 
 if __name__=="__main__":
