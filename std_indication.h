@@ -24,6 +24,7 @@
 #include <cmpidt.h>
 #include <cmpift.h>
 #include <cmpimacs.h>
+#include <stdio.h>
 
 #include "libcmpiutil.h"
 #include "std_invokemethod.h"
@@ -51,7 +52,8 @@ CMPIStatus stdi_cleanup(CMPIMethodMI *self,
                         const CMPIContext *context,
                         CMPIBoolean terminating);
 
-typedef CMPIStatus (*raise_indication_t)(const CMPIContext *ctx,
+typedef CMPIStatus (*raise_indication_t)(const CMPIBroker *broker,
+                                         const CMPIContext *ctx,
                                          const CMPIInstance *ind);
 
 typedef CMPIStatus (*trigger_indication_t)(const CMPIContext *ctx);
@@ -64,14 +66,44 @@ struct std_indication_handler {
 struct std_indication_ctx {
         const CMPIBroker *brkr;
         struct std_indication_handler *handler;
+        bool enabled;
 };
 
 #define STDI_IndicationMIStub(pfx, pn, _broker, hook, _handler)         \
+        static struct std_indication_ctx _ctx = {                       \
+                .brkr = NULL,                                           \
+                .handler = _handler,                                    \
+                .enabled = false,                                       \
+        };                                                              \
+                                                                        \
+        static CMPIIndicationMIFT indMIFT__ = {                         \
+                CMPICurrentVersion,                                     \
+                CMPICurrentVersion,                                     \
+                "Indication" #pn,                                       \
+                pfx##IndicationCleanup,                                 \
+                pfx##AuthorizeFilter,                                   \
+                pfx##MustPoll,                                          \
+                pfx##ActivateFilter,                                    \
+                pfx##DeActivateFilter,                                  \
+                CMIndicationMIStubExtensions(pfx)                       \
+        };                                                              \
         CMPIIndicationMI *                                              \
         pn##_Create_IndicationMI(const CMPIBroker *,                    \
-                                const CMPIContext *,                    \
-                                CMPIStatus *);                          \
-        CMIndicationMIStub(pfx, pn, _broker, hook);                     \
+                                 const CMPIContext *,                   \
+                                 CMPIStatus *);                         \
+        CMPIIndicationMI *                                              \
+        pn##_Create_IndicationMI(const CMPIBroker *brkr,                \
+                                  const CMPIContext *ctx,               \
+                                  CMPIStatus *rc) {                     \
+                static CMPIIndicationMI mi = {                          \
+                        &_ctx,                                          \
+                        &indMIFT__,                                     \
+                };                                                      \
+                _ctx.brkr = brkr;                                       \
+                _broker = brkr;                                         \
+                hook;                                                   \
+                return &mi;                                             \
+        }                                                               \
                                                                         \
         static CMPIMethodMIFT methMIFT__ = {                            \
                 CMPICurrentVersion,                                     \
@@ -88,13 +120,11 @@ struct std_indication_ctx {
         CMPIMethodMI *pn##_Create_MethodMI(const CMPIBroker *brkr,      \
                                            const CMPIContext *ctx,      \
                                            CMPIStatus *rc) {            \
-                static struct std_indication_ctx _ctx;                  \
                 static CMPIMethodMI mi = {                              \
                         &_ctx,                                          \
                         &methMIFT__,                                    \
                 };                                                      \
                 _ctx.brkr = brkr;                                       \
-                _ctx.handler = _handler;                                \
                 _broker = brkr;                                         \
                 hook;                                                   \
                 return &mi;                                             \

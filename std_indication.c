@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307  USA
  */
 #include <string.h>
+#include <stdbool.h>
 
 #include <cmpidt.h>
 #include <cmpift.h>
@@ -40,19 +41,40 @@ static CMPIStatus trigger(struct std_indication_ctx *ctx,
         return ctx->handler->trigger_fn(context);
 }
 
+static CMPIStatus default_raise(const CMPIBroker *broker,
+                                const CMPIContext *context,
+                                CMPIInstance *ind)
+{
+        CMPIObjectPath *ref;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+
+        ref = CMGetObjectPath(ind, NULL);
+        
+        CBDeliverIndication(broker,
+                            context, 
+                            NAMESPACE(ref), 
+                            ind);
+        return s;
+}
+
 static CMPIStatus raise(struct std_indication_ctx *ctx,
                         const CMPIContext *context,
                         const CMPIArgs *argsin)
 {
         CMPIInstance *inst;
 
-        if (ctx->handler->raise_fn == NULL)
-                return (CMPIStatus){CMPI_RC_OK, NULL};
+        if (!ctx->enabled) {
+                CU_DEBUG("Indication disabled, not raising.");
+                return (CMPIStatus) {CMPI_RC_OK, NULL};
+        }
 
         if (cu_get_inst_arg(argsin, "Indication", &inst) != CMPI_RC_OK)
                 return (CMPIStatus){CMPI_RC_ERR_FAILED, NULL};
 
-        return ctx->handler->raise_fn(context, inst);
+        if (ctx->handler->raise_fn == NULL)
+                return default_raise(ctx->brkr, context, inst);
+
+        return ctx->handler->raise_fn(ctx->brkr, context, inst);
 }
 
 CMPIStatus stdi_handler(CMPIMethodMI *self,
