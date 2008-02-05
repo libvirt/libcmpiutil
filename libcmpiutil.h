@@ -165,6 +165,18 @@ CMPIrc cu_get_u16_path(const CMPIObjectPath *reference,
                        const char *key,
                        uint16_t *target);
 
+/**
+ * Create a copy of an instance
+ *
+ * @param src Source instance
+ * @param dest Destination instance
+ * @returns {CMPI_RC_OK, NULL} if success, CMPI_RC ERR_FAILED and 
+ *          error message otherwise
+ */
+CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
+                              CMPIInstance *src,
+                              CMPIStatus *s);
+
 /* Forward declaration */
 struct inst_list;
 

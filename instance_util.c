@@ -204,6 +204,55 @@ CMPIStatus cu_copy_prop(const CMPIBroker *broker,
         return s;        
 }
 
+CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
+                              CMPIInstance *src,
+                              CMPIStatus *s)
+{
+        int i;
+        int prop_count;
+        CMPIData data;
+        CMPIObjectPath *ref;
+        CMPIInstance *dest = NULL;
+
+        ref = CMGetObjectPath(src, NULL);
+        if ((s->rc != CMPI_RC_OK) || CMIsNullObject(ref)) {
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_FAILED,
+                           "Could not get objectpath from instance");
+                goto out;
+        }
+     
+        dest = CMNewInstance(broker, ref, s);
+
+        prop_count = CMGetPropertyCount(src, s);
+        if (s->rc != CMPI_RC_OK) {
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_FAILED,
+                           "Could not get property count for copy");
+                goto out;
+        }
+
+        for (i = 0; i < prop_count; i++) {
+                CMPIString *prop;
+                char *prop_name;
+
+                data = CMGetPropertyAt(src, i, &prop, s);
+                prop_name = CMGetCharPtr(prop);
+                if (s->rc != CMPI_RC_OK) {
+                        goto out;
+                }
+                
+                *s = CMSetProperty(dest, prop_name, 
+                                   &(data.value), data.type);
+                if (s->rc != CMPI_RC_OK) {
+                        goto out;
+                }
+        }
+
+ out:
+        return dest;
+}
+
 /*
  * Local Variables:
  * mode: C
