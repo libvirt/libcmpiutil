@@ -55,8 +55,9 @@ static int parse_eo_inst_arg(CMPIString *string_in,
         str = CMGetCharPtr(string_in);
 
         if (str == NULL) {
-                CMSetStatus(s, CMPI_RC_ERR_INVALID_PARAMETER);
-                CU_DEBUG("Method parameter value is NULL");
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_INVALID_PARAMETER,
+                           "Method parameter value is NULL");
                 return 0;
         }
 
@@ -67,8 +68,9 @@ static int parse_eo_inst_arg(CMPIString *string_in,
 
         /* cu_parse_embedded_instance() returns 0 on success */
         if ((ret != 0) || CMIsNullObject(instance_out)) {
-                CMSetStatus(s, CMPI_RC_ERR_FAILED);
-                CU_DEBUG("Unable to parse embedded object");
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unable to parse embedded object");
                 return 0;
         }
 
@@ -86,8 +88,9 @@ static int parse_eo_array(CMPIArray *strings_in,
         int count;
 
         if (CMIsNullObject(strings_in)) {
-                CMSetStatus(s, CMPI_RC_ERR_INVALID_PARAMETER);
-                CU_DEBUG("Method parameter is NULL");
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_INVALID_PARAMETER,
+                           "Method parameter is NULL");
                 return 0;
         }
 
@@ -146,10 +149,11 @@ static int parse_eo_param(CMPIArgs *args,
                                      broker,
                                      ns,
                                      s);
-        } else {
-                CMSetStatus(s, CMPI_RC_ERR_FAILED);
-                CU_DEBUG("Unable to parse argument type %d", type);
-        }
+        } else
+                cu_statusf(broker, s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unable to parse argument type %d",
+                           type);
 
         if (ret != 1)
                 return 0;
