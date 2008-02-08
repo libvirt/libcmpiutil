@@ -44,15 +44,16 @@
 
 #define STREQ(a, b) (strcmp(a, b) == 0)
 #define STREQC(a, b) (strcasecmp(a, b) == 0)
-#define _STRINGIFY(x) #x
-#define STRING(x) _STRINGIFY(x)
+#define _CU_STRINGIFY(x) #x
+#define CU_STRINGIFY(x) _CU_STRINGIFY(x)
 
 /**
  * Dispatch macro for debug_print, fills in the function name and line number 
  * of caller.
  */
-#define CU_DEBUG(fmt, args...) {debug_print(__FILE__ "(" STRING(__LINE__)"): " \
-                                            fmt "\n", ##args);}
+#define CU_DEBUG(fmt, args...) {                                        \
+                debug_print(__FILE__ "(" CU_STRINGIFY(__LINE__)"): "    \
+                            fmt "\n", ##args);}
 
 /**
  * Helper for DEBUG macro.  Checks environmental variable CU_DEBUG and:
