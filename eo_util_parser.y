@@ -51,7 +51,7 @@ int eo_parse_parseinstance(const CMPIBroker *broker,
 %token INSTANCE OF ENDOFFILE
 
  /* Define lexical tokens that return a value and their return type */
-%token <string> CLASSNAME
+%token <string> CLASS
 %token <string> PROPERTYNAME
 %token <string> STRING
 %token <boolean> BOOLEAN
@@ -62,7 +62,7 @@ int eo_parse_parseinstance(const CMPIBroker *broker,
 /* Rules section */
 
 instance:	/* empty */
-	|	INSTANCE OF CLASSNAME '{'
+	|	INSTANCE OF CLASS '{'
 			{
 			EOTRACE("classname = %s\n",$3);
 			CMPIObjectPath *op;

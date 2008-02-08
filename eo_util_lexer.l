@@ -90,7 +90,7 @@ FALSE	{
 <READCLASSNAME>[A-Za-z][A-Za-z0-9_]* {
 	BEGIN INITIAL; /* Go back to normal parsing rules now */
 	eo_parse_lval.string = (char *)strdup(eo_parse_text);
-	return(CLASSNAME);
+	return(CLASS);
 	}
 
 	/* Propertyname */
