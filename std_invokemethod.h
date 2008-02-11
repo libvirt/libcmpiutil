@@ -45,6 +45,7 @@ enum {IM_RC_OK,
 struct method_arg {
         char *name;
         CMPIType type;
+        bool optional;
 };
 
 struct method_handler {

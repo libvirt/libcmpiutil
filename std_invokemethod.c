@@ -184,7 +184,8 @@ static int validate_arg_type(struct method_arg *arg,
         int ret;
 
         argdata = CMGetArg(args, arg->name, s);
-        if ((s->rc != CMPI_RC_OK) || (CMIsNullValue(argdata))) {
+        if (((s->rc != CMPI_RC_OK) || (CMIsNullValue(argdata)))
+             && !arg->optional) {
                 CMSetStatus(s, CMPI_RC_ERR_INVALID_PARAMETER);
                 CU_DEBUG("Method parameter `%s' missing",
                          arg->name);
@@ -204,12 +205,14 @@ static int validate_arg_type(struct method_arg *arg,
 
                         if (ret != 1)
                                 return 0;
-                } else {
+                } else if (!arg->optional) {
                         CMSetStatus(s, CMPI_RC_ERR_TYPE_MISMATCH);
                         CU_DEBUG("Method parameter `%s' type check failed",
                                  arg->name);
                         return 0;
-                }
+                } else
+                        CU_DEBUG("No optional parameter supplied for `%s'",
+                                 arg->name);
         } else {
                 *s = CMAddArg(new_args,
                               arg->name,
