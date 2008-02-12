@@ -10,6 +10,8 @@ pkgconfig_DATA = libcmpiutil.pc
 
 libcmpiutilincdir = $(includedir)/libcmpiutil
 
+noinst_HEADERS = eo_parser_xml.h
+
 libcmpiutilinc_HEADERS = libcmpiutil.h \
                   std_invokemethod.h \
                   std_association.h \
@@ -18,7 +20,7 @@ libcmpiutilinc_HEADERS = libcmpiutil.h \
 
 libcmpiutil_la_SOURCES = args_util.c instance_util.c std_invokemethod.c \
                          std_association.c inst_list.c std_indication.c \
-                         debug_util.c
+                         debug_util.c eo_parser_xml.c
 libcmpiutil_la_CFLAGS = $(CFLAGS) $(CFLAGS_STRICT)
 libcmpiutil_la_LIBADD =
 libcmpiutil_la_DEPENDENCIES =
