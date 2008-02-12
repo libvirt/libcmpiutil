@@ -31,13 +31,14 @@
 
 #include "libcmpiutil.h"
 #include "eo_util_parser.h"
+#include "eo_parser_xml.h"
 
 #define TEMPLATE "/tmp/tmp_eo_parse.XXXXXX"
 
 void eo_parse_restart(FILE *);
 int eo_parse_parseinstance(const CMPIBroker *, CMPIInstance **, const char *ns);
 
-static int write_temp(char *eo)
+static int write_temp(const char *eo)
 {
         int fd;
         int ret;
@@ -62,13 +63,13 @@ static int write_temp(char *eo)
         return fd;
 }
 
-int cu_parse_embedded_instance(const char *eo,
-                               const CMPIBroker *broker,
-                               const char *ns,
-                               CMPIInstance **instance)
+#ifdef HAVE_EOPARSER
+static int parse_ei_mof(const CMPIBroker *broker,
+                        const char *ns,
+                        const char *eo,
+                        CMPIInstance **instance)
 {
         int ret;
-#ifdef HAVE_EOPARSER
         int fd;
         FILE *fp;
 
@@ -81,10 +82,29 @@ int cu_parse_embedded_instance(const char *eo,
         ret = eo_parse_parseinstance(broker, instance, ns);
 
         close(fd);
-#else
-        ret = 0;
-#endif
+
         return ret;
+}
+#endif
+
+int cu_parse_embedded_instance(const char *eo,
+                               const CMPIBroker *broker,
+                               const char *ns,
+                               CMPIInstance **instance)
+{
+        if (strcasestr(eo, "<instance")) {
+                CU_DEBUG("Parsing CIMXML-style EI");
+                return cu_parse_ei_xml(broker, ns, eo, instance);
+        } else {
+#ifdef HAVE_EOPARSER
+                CU_DEBUG("Parsing MOF-style EI");
+                return parse_ei_mof(broker, ns, eo, instance);
+#else
+                CU_DEBUG("EI parser did not see `<instance', "
+                         "assuming not CIMXML");
+                return 0;
+#endif
+        }
 }
 
 /*
