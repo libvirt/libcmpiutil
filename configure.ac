@@ -50,6 +50,8 @@ AC_ARG_ENABLE([eoparser],
 
 AM_CONDITIONAL([build_eoparser],[test x$eoparser = xyes])       
 
+CHECK_LIBXML2
+
 if test x${eoparser} = xyes; then
    CFLAGS+=" -DHAVE_EOPARSER"
 fi
