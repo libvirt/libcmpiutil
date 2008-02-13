@@ -234,7 +234,7 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
 
         for (i = 0; i < prop_count; i++) {
                 CMPIString *prop;
-                char *prop_name;
+                const char *prop_name;
 
                 data = CMGetPropertyAt(src, i, &prop, s);
                 prop_name = CMGetCharPtr(prop);
