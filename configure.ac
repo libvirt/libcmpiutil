@@ -1,5 +1,5 @@
 # Copyright IBM Corp. 2007
-AC_INIT(CMPI Utility Library, 0.2, danms@us.ibm.com, libcmpiutil)
+AC_INIT(CMPI Utility Library, 0.3, danms@us.ibm.com, libcmpiutil)
 
 AC_CONFIG_SRCDIR([libcmpiutil.h])
 
