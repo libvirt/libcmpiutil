@@ -12,6 +12,7 @@ URL: http://libvirt.org/CIM/
 BuildRequires: tog-pegasus-devel
 BuildRequires: flex
 BuildRequires: bison
+BuildRequires: libxml2-devel
 BuildConflicts: sblim-cmpi-devel
 
 %description
