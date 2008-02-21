@@ -327,7 +327,7 @@ static CMPIStatus parse_instance(const CMPIBroker *broker,
 {
         char *class = NULL;
         xmlNode *child;
-        CMPIStatus s;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
         CMPIObjectPath *op;
 
         if (root->type != XML_ELEMENT_NODE) {
@@ -360,12 +360,18 @@ static CMPIStatus parse_instance(const CMPIBroker *broker,
         op = CMNewObjectPath(broker, ns, class, &s);
         if ((op == NULL) || (s.rc != CMPI_RC_OK)) {
                 CU_DEBUG("Unable to create path for %s:%s", ns, class);
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unable to create path for %s:%s", ns, class);
                 goto out;
         }
 
         *inst = CMNewInstance(broker, op, &s);
         if ((*inst == NULL) || (s.rc != CMPI_RC_OK)) {
                 CU_DEBUG("Unable to create inst for %s:%s", ns, class);
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Unable to create instance for %s:%s", ns, class);
                 goto out;
         }
 
