@@ -4,6 +4,7 @@ AC_INIT(CMPI Utility Library, 0.3, danms@us.ibm.com, libcmpiutil)
 AC_CONFIG_SRCDIR([libcmpiutil.h])
 
 CHECK_CMPI
+CHECK_IND_VOID
 
 AC_CHECK_HEADERS([cmpidt.h cmpift.h cmpimacs.h])
 
@@ -22,7 +23,7 @@ CC_WARNINGS="\
 
 CFLAGS="$CFLAGS $CC_WARNINGS -D_FORTIFY_SOURCE=2 -D_GNU_SOURCE"
 
-#AC_CONFIG_HEADER([config.h])
+AC_CONFIG_HEADER([config.h])
 
 topdir=`pwd`
 AC_SUBST(topdir)

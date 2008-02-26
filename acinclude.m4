@@ -92,6 +92,34 @@ AC_DEFUN([CHECK_BROKEN_CMPIFT],
 	]
 )])
 
+#
+# Check for void EnableIndications return
+#
+AC_DEFUN([CHECK_IND_VOID], [
+	AH_TEMPLATE([CMPI_EI_VOID],
+		    [Defined if return type of EnableIndications 
+		     should be void])
+	AC_MSG_CHECKING([return type for indications])
+	CFLAGS_TMP=$CFLAGS
+	CFLAGS="-Werror"
+	AC_TRY_COMPILE([
+		  #include <cmpift.h>
+		  static void ei(CMPIIndicationMI *mi, const CMPIContext *c) {
+		       return;
+		  }
+		],[ 
+		  struct _CMPIIndicationMIFT ft;
+		  ft.enableIndications = ei;
+		  return 0;
+	], [
+		echo "void"
+		AC_DEFINE_UNQUOTED([CMPI_EI_VOID], [yes])
+	], [
+		echo "CMPIStatus"
+	])
+	CFLAGS=$CFLAGS_TMP
+])
+
 AC_DEFUN([CHECK_LIBXML2],
         [
         PKG_CHECK_MODULES([LIBXML], [libxml-2.0])
