@@ -32,10 +32,65 @@
 
 #include "std_indication.h"
 
+void stdi_free_ind_args (struct ind_args **args)
+{
+        free((*args)->ns);
+        free((*args)->classname);
+        free(*args);
+        *args = NULL;
+}
+
+static struct std_ind_filter *get_ind_filter(struct std_ind_filter **list,
+                                             const char *ind_name)
+{
+        int i;
+        struct std_ind_filter *filter = NULL;
+
+        for (i = 0; list[i] != NULL; i++) {
+                if (STREQC((list[i])->ind_name, ind_name)) {
+                        filter = list[i];
+                        break;
+                }
+        }
+        
+        if (filter == NULL)
+                CU_DEBUG("get_ind_filter: failed to find %s", ind_name);
+
+        return filter;
+}
+
+static bool is_ind_enabled(struct std_indication_ctx *ctx,
+                           const char *ind_name,
+                           CMPIStatus *s)
+{
+        bool ret = false;
+        struct std_ind_filter *filter;
+
+        if (!ctx->enabled) {
+                CU_DEBUG("Indications disabled for this provider");
+                ret = false;
+                goto out;
+        }
+
+        filter = get_ind_filter(ctx->filters, ind_name);
+        if (filter == NULL) {
+                cu_statusf(ctx->brkr, s,
+                           CMPI_RC_ERR_FAILED,
+                           "No std_ind_filter for %s", ind_name);
+                goto out;
+        }
+        
+        ret = filter->active;
+        if (!ret)
+                CU_DEBUG("Indication '%s' not in active filter", ind_name);
+ out:
+        return ret;
+}
+
 static CMPIStatus trigger(struct std_indication_ctx *ctx,
                           const CMPIContext *context)
 {
-        if (ctx->handler->trigger_fn == NULL)
+        if (ctx->handler == NULL || ctx->handler->trigger_fn == NULL)
                 return (CMPIStatus){CMPI_RC_OK, NULL};
 
         return ctx->handler->trigger_fn(context);
@@ -61,20 +116,169 @@ static CMPIStatus raise(struct std_indication_ctx *ctx,
                         const CMPIContext *context,
                         const CMPIArgs *argsin)
 {
+        bool enabled;
         CMPIInstance *inst;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        const char *ind_name = NULL;
 
-        if (!ctx->enabled) {
-                CU_DEBUG("Indication disabled, not raising.");
-                return (CMPIStatus) {CMPI_RC_OK, NULL};
+        if (cu_get_inst_arg(argsin, "Indication", &inst) != CMPI_RC_OK) {
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Could not get indication to raise");
+                goto out;
         }
 
-        if (cu_get_inst_arg(argsin, "Indication", &inst) != CMPI_RC_OK)
-                return (CMPIStatus){CMPI_RC_ERR_FAILED, NULL};
+        ind_name = cu_classname_from_inst(inst);
+        if (ind_name == NULL) {
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Couldn't get indication name for enable check.");
+        }
 
-        if (ctx->handler->raise_fn == NULL)
-                return default_raise(ctx->brkr, context, inst);
+        enabled = is_ind_enabled(ctx, ind_name, &s);
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("Problem checking enabled: '%s'", CMGetCharPtr(s.msg));
+                goto out;
+        }
 
-        return ctx->handler->raise_fn(ctx->brkr, context, inst);
+        if (!enabled)
+                goto out;
+
+        if (ctx->handler == NULL || ctx->handler->raise_fn == NULL)
+                s = default_raise(ctx->brkr, context, inst);
+        else
+                s = ctx->handler->raise_fn(ctx->brkr, context, inst);
+
+ out:
+        return s;
+}
+CMPIStatus stdi_deliver(const CMPIBroker *broker,
+                        const CMPIContext *ctx,
+                        struct ind_args *args,
+                        CMPIInstance *ind)
+{
+        bool enabled;
+        const char *ind_name;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+
+        ind_name = cu_classname_from_inst(ind);
+        if (ind_name == NULL) {
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Couldn't get indication name for enable check.");
+        }
+
+        enabled = is_ind_enabled(args->_ctx, ind_name, &s);
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("Problem checking enabled: '%s'", CMGetCharPtr(s.msg));
+                goto out;
+        }
+
+        if (enabled)
+                s = CBDeliverIndication(broker, ctx, args->ns, ind);
+
+ out:
+        return s;
+}
+
+CMPIStatus stdi_set_ind_filter_state(struct std_indication_ctx *ctx,
+                                     char *ind_name,
+                                     bool state)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        struct std_ind_filter *filter;
+
+        filter = get_ind_filter(ctx->filters, ind_name);
+        if (filter == NULL) {
+                cu_statusf(ctx->brkr, &s,
+                           CMPI_RC_ERR_FAILED,
+                           "Provider has no indication '%s'", ind_name);
+                goto out;
+        }
+        
+        filter->active = state;
+
+ out:
+        return s;
+}
+
+CMPIStatus stdi_activate_filter(CMPIIndicationMI* mi,
+                                const CMPIContext* ctx,
+                                const CMPISelectExp* se,
+                                const char *ns,
+                                const CMPIObjectPath* op,
+                                CMPIBoolean first)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        struct std_indication_ctx *_ctx;
+        char *cn = NULL;
+        
+        _ctx = (struct std_indication_ctx *)mi->hdl;
+        cn = CLASSNAME(op);
+        s = stdi_set_ind_filter_state(_ctx, cn, true);
+
+        if (_ctx->handler != NULL && _ctx->handler->activate_fn != NULL) {
+                CU_DEBUG("Calling handler->activate_fn");
+                s = _ctx->handler->activate_fn(mi, ctx, se, ns, op, first);
+                goto out;
+        }
+
+ out:
+        return s;
+}
+
+CMPIStatus stdi_deactivate_filter(CMPIIndicationMI* mi,
+                                  const CMPIContext* ctx,
+                                  const CMPISelectExp* se,
+                                  const  char *ns,
+                                  const CMPIObjectPath* op,
+                                  CMPIBoolean last)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        struct std_indication_ctx *_ctx;
+        char *cn = NULL;
+
+        _ctx = (struct std_indication_ctx *)mi->hdl;
+        cn = CLASSNAME(op);
+        s = stdi_set_ind_filter_state(_ctx, cn, false);
+
+        if (_ctx->handler != NULL && _ctx->handler->deactivate_fn != NULL) {
+                s = _ctx->handler->deactivate_fn(mi, ctx, se, ns, op, last);
+                goto out;
+        }
+
+ out:
+        return s;
+}
+
+_EI_RTYPE stdi_enable_indications (CMPIIndicationMI* mi,
+                                   const CMPIContext *ctx)
+{
+        struct std_indication_ctx *_ctx;
+        _ctx = (struct std_indication_ctx *)mi->hdl;
+
+        CU_DEBUG("%s: indications enabled", mi->ft->miName);
+        _ctx->enabled = true;
+
+        if (_ctx->handler != NULL && _ctx->handler->enable_fn != NULL)
+                return _ctx->handler->enable_fn(mi, ctx);
+
+        _EI_RET();
+}
+
+_EI_RTYPE stdi_disable_indications (CMPIIndicationMI* mi,
+                                    const CMPIContext *ctx)
+{
+        struct std_indication_ctx *_ctx;
+        _ctx = (struct std_indication_ctx *)mi->hdl;
+
+        CU_DEBUG("%s: indications disabled", mi->ft->miName);
+        _ctx->enabled = false;
+
+        if (_ctx->handler != NULL && _ctx->handler->disable_fn != NULL)
+                return _ctx->handler->disable_fn(mi, ctx);
+
+        _EI_RET();
 }
 
 CMPIStatus stdi_handler(CMPIMethodMI *self,

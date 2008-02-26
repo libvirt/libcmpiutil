@@ -26,8 +26,74 @@
 #include <cmpimacs.h>
 #include <stdio.h>
 
+#include "config.h"
+
 #include "libcmpiutil.h"
 #include "std_invokemethod.h"
+
+#ifdef CMPI_EI_VOID
+# define _EI_RTYPE void
+# define _EI_RET() return
+#else
+# define _EI_RTYPE CMPIStatus
+# define _EI_RET() return (CMPIStatus){CMPI_RC_OK, NULL}
+#endif
+
+typedef CMPIStatus (*raise_indication_t)(const CMPIBroker *broker,
+                                         const CMPIContext *ctx,
+                                         const CMPIInstance *ind);
+
+typedef CMPIStatus (*trigger_indication_t)(const CMPIContext *ctx);
+
+typedef CMPIStatus (*activate_function_t) (CMPIIndicationMI* mi,
+                                           const CMPIContext* ctx,
+                                           const CMPISelectExp* se,
+                                           const char *ns,
+                                           const CMPIObjectPath* op,
+                                           CMPIBoolean first);
+
+typedef CMPIStatus (*deactivate_function_t) (CMPIIndicationMI* mi,
+                                             const CMPIContext* ctx,
+                                             const CMPISelectExp* se,
+                                             const  char *ns,
+                                             const CMPIObjectPath* op,
+                                             CMPIBoolean last);
+
+typedef _EI_RTYPE (*enable_function_t) (CMPIIndicationMI* mi,
+                                        const CMPIContext *ctx);
+
+typedef _EI_RTYPE (*disable_function_t) (CMPIIndicationMI* mi,
+                                         const CMPIContext *ctx);
+
+struct std_indication_handler {
+        raise_indication_t raise_fn;
+        trigger_indication_t trigger_fn;
+        activate_function_t activate_fn;
+        deactivate_function_t deactivate_fn;
+        enable_function_t enable_fn;
+        disable_function_t disable_fn;
+};
+
+struct std_ind_filter {
+        char *ind_name;
+        bool active;
+};
+
+struct std_indication_ctx {
+        const CMPIBroker *brkr;
+        struct std_indication_handler *handler;
+        struct std_ind_filter **filters;
+        bool enabled;
+};
+
+struct ind_args {
+        CMPIContext *context;
+        char *ns;
+        char *classname;
+        struct std_indication_ctx *_ctx;
+};
+
+void stdi_free_ind_args (struct ind_args **args);
 
 CMPIStatus stdi_trigger_indication(const CMPIBroker *broker,
                                    const CMPIContext *context,
@@ -39,6 +105,31 @@ CMPIStatus stdi_raise_indication(const CMPIBroker *broker,
                                  const char *type,
                                  const char *ns,
                                  const CMPIInstance *ind);
+
+CMPIStatus stdi_deliver(const CMPIBroker *broker,
+                        const CMPIContext *ctx,
+                        struct ind_args *args,
+                        CMPIInstance *ind);
+
+CMPIStatus stdi_activate_filter(CMPIIndicationMI* mi,
+                                const CMPIContext* ctx,
+                                const CMPISelectExp* se,
+                                const char *ns,
+                                const CMPIObjectPath* op,
+                                CMPIBoolean first);
+
+CMPIStatus stdi_deactivate_filter(CMPIIndicationMI* mi,
+                                  const CMPIContext* ctx,
+                                  const CMPISelectExp* se,
+                                  const  char *ns,
+                                  const CMPIObjectPath* op,
+                                  CMPIBoolean last);
+
+_EI_RTYPE stdi_enable_indications (CMPIIndicationMI* mi,
+                                   const CMPIContext *ctx);
+
+_EI_RTYPE stdi_disable_indications (CMPIIndicationMI* mi,
+                                    const CMPIContext *ctx);
 
 CMPIStatus stdi_handler(CMPIMethodMI *self,
                         const CMPIContext *context,
@@ -52,27 +143,22 @@ CMPIStatus stdi_cleanup(CMPIMethodMI *self,
                         const CMPIContext *context,
                         CMPIBoolean terminating);
 
-typedef CMPIStatus (*raise_indication_t)(const CMPIBroker *broker,
-                                         const CMPIContext *ctx,
-                                         const CMPIInstance *ind);
+CMPIStatus stdi_set_ind_filter_state(struct std_indication_ctx *ctx,
+                                     char *ind_name,
+                                     bool state);
 
-typedef CMPIStatus (*trigger_indication_t)(const CMPIContext *ctx);
+/* This doesn't work, but should be made to. */
+#define DECLARE_FILTER(ident, name)                     \
+        static struct std_ind_filter ident = {          \
+                .ind_name = name,                       \
+                .active = false,                        \
+        };                                              \
 
-struct std_indication_handler {
-        raise_indication_t raise_fn;
-        trigger_indication_t trigger_fn;
-};
-
-struct std_indication_ctx {
-        const CMPIBroker *brkr;
-        struct std_indication_handler *handler;
-        bool enabled;
-};
-
-#define STDI_IndicationMIStub(pfx, pn, _broker, hook, _handler)         \
-        static struct std_indication_ctx _ctx = {                       \
+#define STDI_IndicationMIStub(pfx, pn, _broker, hook, _handler, filters)\
+        static struct std_indication_ctx pn##_ctx = {                   \
                 .brkr = NULL,                                           \
                 .handler = _handler,                                    \
+                .filters = filters,                                     \
                 .enabled = false,                                       \
         };                                                              \
                                                                         \
@@ -83,9 +169,10 @@ struct std_indication_ctx {
                 pfx##IndicationCleanup,                                 \
                 pfx##AuthorizeFilter,                                   \
                 pfx##MustPoll,                                          \
-                pfx##ActivateFilter,                                    \
-                pfx##DeActivateFilter,                                  \
-                CMIndicationMIStubExtensions(pfx)                       \
+                stdi_activate_filter,                                   \
+                stdi_deactivate_filter,                                 \
+                stdi_enable_indications,                                \
+                stdi_disable_indications,                               \
         };                                                              \
         CMPIIndicationMI *                                              \
         pn##_Create_IndicationMI(const CMPIBroker *,                    \
@@ -96,10 +183,10 @@ struct std_indication_ctx {
                                   const CMPIContext *ctx,               \
                                   CMPIStatus *rc) {                     \
                 static CMPIIndicationMI mi = {                          \
-                        &_ctx,                                          \
+                        &pn##_ctx,                                      \
                         &indMIFT__,                                     \
                 };                                                      \
-                _ctx.brkr = brkr;                                       \
+                pn##_ctx.brkr = brkr;                                   \
                 _broker = brkr;                                         \
                 hook;                                                   \
                 return &mi;                                             \
@@ -121,10 +208,10 @@ struct std_indication_ctx {
                                            const CMPIContext *ctx,      \
                                            CMPIStatus *rc) {            \
                 static CMPIMethodMI mi = {                              \
-                        &_ctx,                                          \
+                        &pn##_ctx,                                      \
                         &methMIFT__,                                    \
                 };                                                      \
-                _ctx.brkr = brkr;                                       \
+                pn##_ctx.brkr = brkr;                                   \
                 _broker = brkr;                                         \
                 hook;                                                   \
                 return &mi;                                             \
