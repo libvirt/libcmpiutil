@@ -415,6 +415,15 @@ CMPIStatus cu_validate_ref(const CMPIBroker *broker,
                            const CMPIObjectPath *ref,
                            const CMPIInstance *inst);
 
+/**
+ * Returns the classname from an instance without forcing user to get 
+ * ObjectPath first.
+ *
+ * @param inst Instance to examine
+ * @returns Classname of instance , NULL on failure
+ */
+const char *cu_classname_from_inst(CMPIInstance *inst);
+
 #define DEFAULT_EIN(pn)                                                 \
         static CMPIStatus pn##EnumInstanceNames(CMPIInstanceMI *self,   \
                                                 const CMPIContext *c,   \

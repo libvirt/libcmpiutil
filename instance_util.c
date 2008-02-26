@@ -253,6 +253,21 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
         return dest;
 }
 
+const char *cu_classname_from_inst(CMPIInstance *inst)
+{
+        char *ret = NULL;
+
+        CMPIObjectPath *ref;
+        ref = CMGetObjectPath(inst, NULL);
+        if (CMIsNullObject(ref))
+                goto out;
+        
+        ret = CLASSNAME(ref);
+
+ out:
+        return ret;
+}
+
 /*
  * Local Variables:
  * mode: C
