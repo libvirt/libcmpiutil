@@ -359,13 +359,13 @@ class CIMIndicationSubscription:
         self.__do_cimpost(self.conn, xml,
                           "DeleteInstance", auth_hdr)
 
-def dump_xml(name, typ, ns):
-    filter_str = filter_xml(name, typ, ns)
-    handler_str = handler_xml(name, 8000)
-    subscript_str = subscription_xml(name)
-    del_filter_str = delete_inst_xml(name, "Filter")
-    del_handler_str = delete_inst_xml(name, "Handler")
-    del_subscript_str = delete_sub_xml(name)
+def dump_xml(name, typ, ns, sysname):
+    filter_str = filter_xml(name, typ, ns, sysname)
+    handler_str = handler_xml(name, 8000, sysname)
+    subscript_str = subscription_xml(name, sysname)
+    del_filter_str = delete_inst_xml(name, "Filter", sysname)
+    del_handler_str = delete_inst_xml(name, "Handler", sysname)
+    del_subscript_str = delete_sub_xml(name, sysname)
 
     print "CreateFilter:\n%s\n" % filter_str
     print "DeleteFilter:\n%s\n" % del_filter_str
@@ -402,10 +402,6 @@ def main():
         print "Fatal: no indication type provided."
         sys.exit(1)
     
-    if options.dump:
-        dump_xml(options.name, args[0], options.ns)
-        sys.exit(0)
-
     if options.username:
         auth = (options.username, options.password)
     else:
@@ -416,6 +412,10 @@ def main():
     else:
         sysname = url
     
+    if options.dump:
+        dump_xml(options.name, args[0], options.ns, sysname)
+        sys.exit(0)
+
     sub = CIMIndicationSubscription(options.name, args[0], options.ns,
                                     options.print_ind, sysname)
     sub.subscribe(options.url, auth)
