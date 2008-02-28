@@ -107,6 +107,68 @@ int cu_parse_embedded_instance(const char *eo,
         }
 }
 
+static int _set_int_prop(CMPISint64 value,
+                         char *prop,
+                         CMPIType type,
+                         CMPIInstance *inst)
+{
+        CMPIStatus s;
+        uint64_t unsigned_val = 0;
+        int64_t signed_val = 0;
+           
+        switch(type) {
+        case CMPI_uint64:
+        case CMPI_uint32:
+        case CMPI_uint16:
+        case CMPI_uint8:
+                unsigned_val = (uint64_t) value;
+                s = CMSetProperty(inst, 
+                                  prop, 
+                                  (CMPIValue *) &(unsigned_val), 
+                                  type);
+                break;
+        case CMPI_sint64:
+        case CMPI_sint32:
+        case CMPI_sint16:
+        case CMPI_sint8:
+        default:
+                signed_val = (int64_t) value;
+                s = CMSetProperty(inst, 
+                                  prop, 
+                                  (CMPIValue *) &(signed_val), 
+                                  type);
+        }
+
+        if (s.rc == CMPI_RC_OK)
+               return 1;
+
+        return 0;
+}
+
+CMPIType set_int_prop(CMPISint64 value,
+                      char *prop,
+                      CMPIInstance *inst)
+{
+        if (_set_int_prop(value, prop, CMPI_uint64, inst) == 1)
+               return CMPI_uint64;
+        else if (_set_int_prop(value, prop, CMPI_uint32, inst) == 1) 
+               return CMPI_uint32;
+        else if (_set_int_prop(value, prop, CMPI_uint16, inst) == 1) 
+               return CMPI_uint16;
+        else if (_set_int_prop(value, prop, CMPI_uint8, inst) == 1)
+               return CMPI_uint8;
+        else if (_set_int_prop(value, prop, CMPI_sint64, inst) == 1)
+               return CMPI_sint64;
+        else if (_set_int_prop(value, prop, CMPI_sint32, inst) == 1) 
+               return CMPI_sint32;
+        else if (_set_int_prop(value, prop, CMPI_sint16, inst) == 1) 
+               return CMPI_sint16;
+        else
+               _set_int_prop(value, prop, CMPI_sint8, inst);
+
+        return CMPI_sint8;
+}
+
 /*
  * Local Variables:
  * mode: C

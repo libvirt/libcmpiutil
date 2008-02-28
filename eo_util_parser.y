@@ -10,9 +10,12 @@
 %{
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #include "cmpidt.h"
 #include "cmpift.h"
+
+#include "eo_parser_xml.h"
 
     /* specify prototypes to get rid of warnings */
 int eo_parse_lex (void);
@@ -103,13 +106,12 @@ property:	PROPERTYNAME '=' STRING ';'
 
 	|	PROPERTYNAME '=' INTEGER ';'
 			{
-			EOTRACE("propertyname = %s"
-				"\ttype = CMPI_sint64\n"
-				"\tvalue = %lld\n",
-				$1, $3);
-			unsigned long long value = $3;
-			CMSetProperty(*_INSTANCE, $1, &(value), CMPI_uint64);
-			free($1);
+                        EOTRACE("propertyname = %s\n", $1); 
+                        int rc;
+                        CMPIType t = set_int_prop($3, $1, *_INSTANCE);
+                        EOTRACE("\ttype = %d\n"
+                                "\tvalue = %lld\n", t, $3); 
+                        free($1);
 			}
 
 	|	PROPERTYNAME '=' BOOLEAN ';'

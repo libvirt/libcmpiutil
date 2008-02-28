@@ -27,6 +27,10 @@ int cu_parse_ei_xml(const CMPIBroker *broker,
                     const char *xml,
                     CMPIInstance **instance);
 
+CMPIType set_int_prop(CMPISint64 value,
+                      char *prop,
+                      CMPIInstance *inst);
+
 #endif
 
 /*
