@@ -144,7 +144,7 @@ CMPIStatus stdi_cleanup(CMPIMethodMI *self,
                         CMPIBoolean terminating);
 
 CMPIStatus stdi_set_ind_filter_state(struct std_indication_ctx *ctx,
-                                     char *ind_name,
+                                     const char *ind_name,
                                      bool state);
 
 /* This doesn't work, but should be made to. */

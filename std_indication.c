@@ -183,7 +183,7 @@ CMPIStatus stdi_deliver(const CMPIBroker *broker,
 }
 
 CMPIStatus stdi_set_ind_filter_state(struct std_indication_ctx *ctx,
-                                     char *ind_name,
+                                     const char *ind_name,
                                      bool state)
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
@@ -212,7 +212,7 @@ CMPIStatus stdi_activate_filter(CMPIIndicationMI* mi,
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
         struct std_indication_ctx *_ctx;
-        char *cn = NULL;
+        const char *cn = NULL;
         
         _ctx = (struct std_indication_ctx *)mi->hdl;
         cn = CLASSNAME(op);
@@ -237,7 +237,7 @@ CMPIStatus stdi_deactivate_filter(CMPIIndicationMI* mi,
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
         struct std_indication_ctx *_ctx;
-        char *cn = NULL;
+        const char *cn = NULL;
 
         _ctx = (struct std_indication_ctx *)mi->hdl;
         cn = CLASSNAME(op);

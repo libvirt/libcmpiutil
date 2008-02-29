@@ -255,7 +255,7 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
 
 const char *cu_classname_from_inst(CMPIInstance *inst)
 {
-        char *ret = NULL;
+        const char *ret = NULL;
 
         CMPIObjectPath *ref;
         ref = CMGetObjectPath(inst, NULL);
