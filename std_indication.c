@@ -133,6 +133,7 @@ static CMPIStatus raise(struct std_indication_ctx *ctx,
                 cu_statusf(ctx->brkr, &s,
                            CMPI_RC_ERR_FAILED,
                            "Couldn't get indication name for enable check.");
+                goto out;
         }
 
         enabled = is_ind_enabled(ctx, ind_name, &s);
