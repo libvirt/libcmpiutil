@@ -121,7 +121,7 @@ static CMPIStatus raise(struct std_indication_ctx *ctx,
         CMPIStatus s = {CMPI_RC_OK, NULL};
         const char *ind_name = NULL;
 
-        if (cu_get_inst_arg(argsin, "Indication", &inst) != CMPI_RC_OK) {
+        if (cu_get_inst_arg(argsin, "TheIndication", &inst) != CMPI_RC_OK) {
                 cu_statusf(ctx->brkr, &s,
                            CMPI_RC_ERR_FAILED,
                            "Could not get indication to raise");
@@ -370,7 +370,7 @@ CMPIStatus stdi_raise_indication(const CMPIBroker *broker,
         if (s.rc != CMPI_RC_OK)
                 return s;
 
-        s = CMAddArg(argsin, "Indication", &ind, CMPI_instance);
+        s = CMAddArg(argsin, "TheIndication", &ind, CMPI_instance);
         if (s.rc != CMPI_RC_OK)
                 return s;
 
