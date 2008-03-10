@@ -213,6 +213,23 @@ unsigned int cu_return_instance_names(const CMPIResult *results,
                                       const struct inst_list *list);
 
 /**
+ * Get an array property of an instance
+ *
+ * @param inst The instance
+ * @param prop The property name
+ * @param target A pointer to a CMPIarray that will be set
+ *               if successful
+ * @returns 
+ *        - CMPI_RC_OK on success, 
+ *        - CMPI_RC_ERR_NO_SUCH_PROPERTY if prop is not present,
+ *        - CMPI_RC_ERR_TYPE_MISMATCH if prop is not an array,
+ *        - CMPI_RC_ERROR otherwise
+ */
+CMPIrc cu_get_array_prop(const CMPIInstance *inst,
+                         const char *prop,
+                         CMPIArray **array);
+
+/**
  * Get a string property of an instance
  *
  * @param inst The instance

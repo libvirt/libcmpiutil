@@ -193,6 +193,27 @@ CMPIrc cu_get_u16_arg(const CMPIArgs *args, const char *name, uint16_t *target)
         if ((s)->rc != CMPI_RC_OK || CMIsNullValue(pv))                 \
                 return CMPI_RC_ERR_NO_SUCH_PROPERTY;
 
+CMPIrc cu_get_array_prop(const CMPIInstance *inst,
+                         const char *prop,
+                         CMPIArray **array)
+{
+        CMPIData value;
+        CMPIStatus s;
+
+        REQUIRE_PROPERTY_DEFINED(inst, prop, value, &s);
+
+        value = CMGetProperty(inst, prop, &s);
+        if ((s.rc != CMPI_RC_OK) || CMIsNullValue(value))
+                return s.rc;
+
+        if (!CMIsArray(value) || CMIsNullObject(value.value.array))
+                return CMPI_RC_ERR_TYPE_MISMATCH;
+
+        *array = value.value.array;
+
+        return CMPI_RC_OK;
+}
+
 CMPIrc cu_get_str_prop(const CMPIInstance *inst,
                        const char *prop,
                        const char **target)
