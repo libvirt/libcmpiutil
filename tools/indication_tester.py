@@ -181,7 +181,7 @@ def delete_inst_xml(name, type, sysname):
               <NAMESPACE NAME="PG_InterOp"/> 
             </LOCALNAMESPACEPATH> 
             <IPARAMVALUE NAME="InstanceName"> 
-              <INSTANCENAME CLASSNAME="CIM_Indication%sCIMXML"> 
+              <INSTANCENAME CLASSNAME="CIM_Indication%s"> 
                 <KEYBINDING NAME="SystemCreationClassName"> 
                   <KEYVALUE>CIM_ComputerSystem</KEYVALUE> 
                 </KEYBINDING> 
@@ -189,7 +189,7 @@ def delete_inst_xml(name, type, sysname):
                   <KEYVALUE>%s</KEYVALUE> 
                 </KEYBINDING> 
                 <KEYBINDING NAME="CreationClassName"> 
-                  <KEYVALUE>CIM_Indication%sCIMXML</KEYVALUE> 
+                  <KEYVALUE>CIM_Indication%s</KEYVALUE> 
                 </KEYBINDING> 
                 <KEYBINDING NAME="Name"> 
                   <KEYVALUE>%s%s</KEYVALUE> 
