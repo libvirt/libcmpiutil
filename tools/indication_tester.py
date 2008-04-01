@@ -295,6 +295,7 @@ class CIMSocketHandler(BaseHTTPServer.BaseHTTPRequestHandler):
         print "Got indication: %s" % indication
         if self.server.print_ind:
             print "%s\n\n" % data
+        self.server.indications.append(indication)
 
 class CIMIndicationSubscription:
     def __init__(self, name, typ, ns, print_ind, sysname):
@@ -306,6 +307,7 @@ class CIMIndicationSubscription:
         self.server = BaseHTTPServer.HTTPServer(('', 8000), CIMSocketHandler)
         self.server.print_ind = print_ind
         self.port = 8000
+        self.server.indications = []
 
         self.filter_xml = filter_xml(name, typ, ns, sysname)
         self.handler_xml = handler_xml(name, self.port, sysname)
