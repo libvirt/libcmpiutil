@@ -1,4 +1,6 @@
 # Copyright IBM Corp. 2007
+AUTOMAKE_OPTIONS=dist-bzip2
+
 SUBDIRS = tools
 
 EXTRA_DIST = libcmpiutil.spec.in libcmpiutil.spec COPYING		\
