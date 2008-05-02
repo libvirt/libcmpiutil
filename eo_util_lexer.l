@@ -121,7 +121,7 @@ FALSE	{
 	/* USER SUBROUTINE SECTION */
 	/* Everything below is copied verbatim to the end of the lex generated C code. */
 
-eo_parse_error(char *errmsg)
+void eo_parse_error(char *errmsg)
 {
    fprintf(stderr, "error line %d: %s in '%s'\n", 
            eolineno, errmsg, eo_parse_text);
