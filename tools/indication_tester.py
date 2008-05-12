@@ -413,7 +413,7 @@ def main():
     if ":" in options.url:
         (sysname, port) = options.url.split(":")
     else:
-        sysname = url
+        sysname = options.url
     
     if options.dump:
         dump_xml(options.name, args[0], options.ns, sysname)
