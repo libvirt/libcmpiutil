@@ -167,6 +167,7 @@ CMPIStatus stdi_deliver(const CMPIBroker *broker,
                 cu_statusf(broker, &s,
                            CMPI_RC_ERR_FAILED,
                            "Couldn't get indication name for enable check.");
+                goto out;
         }
 
         enabled = is_ind_enabled(args->_ctx, ind_name, &s);
@@ -175,8 +176,16 @@ CMPIStatus stdi_deliver(const CMPIBroker *broker,
                 goto out;
         }
 
+        CU_DEBUG("Indication %s is%s enabled",
+                 ind_name,
+                 enabled ? "" : " not");
+
         if (enabled)
                 s = CBDeliverIndication(broker, ctx, args->ns, ind);
+        else
+                cu_statusf(broker, &s,
+                           CMPI_RC_ERR_METHOD_NOT_AVAILABLE,
+                           "Indication not enabled");
 
  out:
         return s;
