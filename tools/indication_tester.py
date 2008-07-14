@@ -308,7 +308,6 @@ class CIMIndicationSubscription:
         self.server = BaseHTTPServer.HTTPServer(('', self.port), 
                                                  CIMSocketHandler)
         self.server.print_ind = print_ind
-        self.port = 8000
         self.server.indications = []
 
         self.filter_xml = filter_xml(name, typ, ns, sysname)
