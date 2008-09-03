@@ -23,6 +23,7 @@ void eo_parse_error(char *);
 
 #define RC_OK 0
 #define RC_EOF EOF
+#define RC_INVALID_CLASS -1000
 
 /* DEFINE ANY GLOBAL VARS HERE */
 static const CMPIBroker * _BROKER;
@@ -76,6 +77,8 @@ instance:	/* empty */
 			*_INSTANCE = CMNewInstance(_BROKER,
 						   op,
 						   NULL);
+			if (*_INSTANCE == NULL)
+				return RC_INVALID_CLASS;
 			free($3);
 			}
 		properties '}' ';'
