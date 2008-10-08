@@ -72,6 +72,12 @@ FALSE	{
 	return(BOOLEAN);
 	}
 
+null |
+Null |
+NULL	{
+	return(CIMNULL);
+	}
+
 {INTEGER} {
 	eo_parse_lval.sint64 = atoll(eo_parse_text);
 	return(INTEGER);

@@ -60,6 +60,7 @@ int eo_parse_parseinstance(const CMPIBroker *broker,
 %token <string> STRING
 %token <boolean> BOOLEAN
 %token <sint64> INTEGER
+%token CIMNULL
 
 %%
 
@@ -124,6 +125,13 @@ property:	PROPERTYNAME '=' STRING ';'
 				"\tvalue = %d\n",
 				$1, $3);
 			CMSetProperty(*_INSTANCE, $1, &($3), CMPI_boolean);
+			free($1);
+			}
+
+	|	PROPERTYNAME '=' CIMNULL ';'
+			{
+			EOTRACE("propertyname = %s\n"
+				"\ttype = NULL\n", $1);
 			free($1);
 			}
 	;
