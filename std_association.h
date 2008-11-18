@@ -31,24 +31,62 @@ typedef CMPIStatus (*assoc_handler_t)(const CMPIObjectPath *ref,
                                       struct std_assoc_info *info,
                                       struct inst_list *list);
 
-typedef CMPIInstance *(*make_ref_t)(const CMPIObjectPath *,
-                                    const CMPIInstance *,
+typedef CMPIInstance *(*make_ref_t)(const CMPIObjectPath *ref,
+                                    const CMPIInstance *inst,
                                     struct std_assoc_info *info,
-                                    struct std_assoc *);
+                                    struct std_assoc *assoc);
 
+/*
+ * std_assoc is the definition that the developer puts in their source file. It
+ * defines an association relationship between a set of source and target
+ * classes, through a named (set of) association classes and the function
+ * handler which does the work. 
+ * It must be registered using the macro STDA_AssocMIStub. 
+ */
 struct std_assoc {
+        /* Defines the list of possible classes that can be passed to the 
+           association for this case */
         char **source_class;
+
+        
+        /* Defines the property of the association class that refers 
+           to the input (source class) of this case. This must match
+           that of the schema, and is used for automatic generation of 
+           the reference object in the References() or ReferenceNames()
+           operation */
         char *source_prop;
 
+        /* Defines a list of possible classes that can be returned by the
+           association for a given source_class list */
         char **target_class;
+
+        /* Same as source_prop, applied for target */
         char *target_prop;
     
+        /* Defines the list of association classes which are implemented by
+           this handler */
         char **assoc_class;
 
+        /* Function handler responsible for doing the association and
+           returning the list of target instances of the association.
+           The handler function receives the reference of the source 
+           class of the association and must map it to a list of 
+           CMPIInstance objects (targets of the association). */
         assoc_handler_t handler;
+
+        /* Function handler responsible for creating an instance of the
+           association class.  
+           The handler function receives the source object path,
+           and the target instance, so it can create the reference which is
+           returned by the function. */
         make_ref_t make_ref;
 };
 
+/*
+ * The std_assoc_info is used to hold the query components of the query done
+ * All members of this structure contain the corresonding formal CIM association
+ * query components.
+ */
 struct std_assoc_info {
         const char *assoc_class;
         const char *result_class;
