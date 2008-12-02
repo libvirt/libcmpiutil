@@ -24,7 +24,7 @@ libcmpiutil_la_SOURCES = args_util.c instance_util.c std_invokemethod.c \
                          std_association.c inst_list.c std_indication.c \
                          debug_util.c eo_parser_xml.c
 libcmpiutil_la_CFLAGS = $(CFLAGS) $(CFLAGS_STRICT)
-libcmpiutil_la_LIBADD =
+libcmpiutil_la_LIBADD = -lxml2
 libcmpiutil_la_DEPENDENCIES =
 
 AM_LFLAGS = -Peo_parse_
