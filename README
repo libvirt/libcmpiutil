@@ -29,7 +29,9 @@ Requirements:
 
 Procedure:
 
-  $ ./autogen.sh
+  -If building a tree cloned from the hg repository, run this step first:
+      $ ./autogen.sh
+
   $ # You probably want the EO parser enabled
   $ ./configure --enable-eoparser
   $ make
