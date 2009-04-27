@@ -274,6 +274,56 @@ static CMPIStatus prepare_assoc_return_list(const CMPIBroker *broker,
         return s;
 }
 
+static bool do_generic_assoc_call(struct std_assoc_info *info,
+                                  struct std_assoc *handler)
+{
+        int i;
+
+        if (info->assoc_class == NULL) {
+                return true;
+        } else {
+                for (i = 0; handler->assoc_class[i]; i++) {
+                        if (STREQ(info->assoc_class, handler->assoc_class[i]))
+                                return false;
+                }
+        }
+
+        return true;
+}
+
+static CMPIStatus handle_assoc(struct std_assoc_info *info,
+                               const CMPIObjectPath *ref,
+                               struct std_assoc *handler,
+                               struct inst_list *list)
+{
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        int i;
+
+        if (do_generic_assoc_call(info, handler)) {
+                for (i = 0; handler->assoc_class[i]; i++) {
+                        info->assoc_class = handler->assoc_class[i];
+
+                        CU_DEBUG("Calling handler ...");
+                        s = handler->handler(ref, info, list);
+                        if (s.rc != CMPI_RC_OK) {
+                                CU_DEBUG("Handler did not return CMPI_RC_OK.");
+                                goto out;
+                        }
+                }
+        } else {
+                CU_DEBUG("Calling handler ...");
+                s = handler->handler(ref, info, list);
+                if (s.rc != CMPI_RC_OK) {
+                        CU_DEBUG("Handler did not return CMPI_RC_OK.");
+                        goto out;
+                }
+        }
+        CU_DEBUG("Handler returned CMPI_RC_OK.");
+
+ out:
+        return s;
+}
+
 static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                            struct std_assoc_info *info,
                            const CMPIResult *results,
@@ -284,6 +334,7 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
         CMPIStatus s = {CMPI_RC_OK, NULL};
         struct inst_list list;
         struct std_assoc *handler;
+        int i;
 
         CU_DEBUG("Getting handler ...");
         handler = std_assoc_get_handler(ctx, info, ref);
@@ -295,13 +346,23 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
 
         inst_list_init(&list);
 
-        CU_DEBUG("Calling handler ...");
-        s = handler->handler(ref, info, &list);
-        if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("Handler did not return CMPI_RC_OK.");
-                goto out;
+        if (do_generic_assoc_call(info, handler)) {
+                for (i = 0; handler->assoc_class[i]; i++) {
+                        info->assoc_class = handler->assoc_class[i];
+
+                        s = handle_assoc(info, ref, handler, &list);
+                        if (s.rc != CMPI_RC_OK) {
+                                CU_DEBUG("Failed to handle association");
+                                goto out;
+                        }
+                }
+        } else {
+                s = handle_assoc(info, ref, handler, &list);
+                if (s.rc != CMPI_RC_OK) {
+                        CU_DEBUG("Failed to handle association");
+                        goto out;
+                }
         }
-        CU_DEBUG("Handler returned CMPI_RC_OK.");
 
         /* References and ReferenceNames */
         if (ref_rslt)
@@ -320,6 +381,7 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                 CU_DEBUG("Prepare return list did not return CMPI_RC_OK.");
                 goto out;
         }
+
         CU_DEBUG("Returned %u instance(s).", list.cur);
 
         if (names_only)
