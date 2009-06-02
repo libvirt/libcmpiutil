@@ -169,6 +169,29 @@ CMPIType set_int_prop(CMPISint64 value,
         return CMPI_sint8;
 }
 
+inline CMPIStatus ins_chars_into_cmstr_arr(const CMPIBroker *broker,
+                                           CMPIArray *arr,
+                                           CMPICount index,
+                                           char *str)
+{
+        CMPIString *cm_str;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+        
+        cm_str = CMNewString(broker, str, &s);
+        if (s.rc != CMPI_RC_OK || CMIsNullObject(cm_str)) {
+                CU_DEBUG("Error creating CMPIString");
+                goto out;
+        }
+
+        s = CMSetArrayElementAt(arr, index, &cm_str, CMPI_string);
+        if (s.rc != CMPI_RC_OK)
+                CU_DEBUG("Error setting array element %u\n"
+                         "Error code: %d", index, s.rc);
+
+ out:
+        return s;
+}
+
 /*
  * Local Variables:
  * mode: C

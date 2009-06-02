@@ -4,6 +4,7 @@
  * Authors:
  *  Gareth Bestor <bestorga@us.ibm.com>
  *  Dan Smith <danms@us.ibm.com>
+ *  Richard Maciel <richardm@br.ibm.com>
  *
  */
 	/*** WARNING - COMMENTS IN LEX MUST BE TAB INDENTED ***/
@@ -91,7 +92,18 @@ NULL	{
 	return(STRING);
 	}
 
-	/* Classname */
+\{      {
+        return(OPENBRACKET);
+        }
+
+\}      {
+        return(CLOSEBRACKET);
+        }
+
+\,      {
+        return(COMMA);
+        }
+
 	/* NOTE - this rule only applies after a 'INSTANCE OF' has been read in */
 <READCLASSNAME>[A-Za-z][A-Za-z0-9_]* {
 	BEGIN INITIAL; /* Go back to normal parsing rules now */

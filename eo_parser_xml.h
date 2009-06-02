@@ -31,6 +31,11 @@ CMPIType set_int_prop(CMPISint64 value,
                       char *prop,
                       CMPIInstance *inst);
 
+inline CMPIStatus ins_chars_into_cmstr_arr(const CMPIBroker *broker,
+                                           CMPIArray *arr,
+                                           CMPICount index,
+                                           char *str);
+
 #endif
 
 /*
