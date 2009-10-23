@@ -153,73 +153,78 @@ std_assoc_get_handler(const struct std_assoc_ctx *ctx,
         for (i = 0; ctx->handlers[i]; i++) {
                 ptr = ctx->handlers[i];
 
-                if (match_source_class(ctx->brkr, ref, ptr))
-                        break;
+                if (!match_source_class(ctx->brkr, ref, ptr)) {
+                        CU_DEBUG("Source class doesn't match");
+                        continue;        
+                }
+                
+                if (!ptr) {
+                        CU_DEBUG("Invalid pointer");
+                        continue;
+                }
 
-                ptr = NULL;
-        }
+                if (info->assoc_class) {
+                        CU_DEBUG("Check client's assocClass: '%s'",
+                                 info->assoc_class);
+                
+                        rc = match_class(ctx->brkr, 
+                                         NAMESPACE(ref),  
+                                         info->assoc_class,
+                                         ptr->assoc_class);
+                
+                        if (!rc) {
+                                CU_DEBUG("AssocClass not valid.");
+                                continue;
+                        }
+                        CU_DEBUG("AssocClass valid.");
+                }
+        
+                if (info->result_class) {
+                        CU_DEBUG("Check client's resultClass: '%s'",
+                                 info->result_class);
+                
+                        rc = match_class(ctx->brkr, 
+                                         NAMESPACE(ref), 
+                                         info->result_class, 
+                                         ptr->target_class);
+                
+                        if (!rc) {
+                                CU_DEBUG("ResultClass not valid.");
+                                continue;
+                        }
+                        CU_DEBUG("ResultClass valid.");
+                }
+        
+                if (info->role) {
+                        CU_DEBUG("Check client's role: '%s'",
+                                 info->role);
+                
+                        if (!STREQC(info->role, ptr->source_prop)) {
+                                CU_DEBUG("Invalid role");
+                                continue;
+                        }
+                        CU_DEBUG("Role valid.");
+                }
+        
+                if (info->result_role) {
+                        CU_DEBUG("Check client's resultRole: '%s'",
+                                 info->result_role);
+                
+                        if (!STREQC(info->result_role, ptr->target_prop)) {
+                                CU_DEBUG("ResultRole not valid.");
+                                continue;
+                        }
+                        CU_DEBUG("ResultRole valid.");
+                }
 
-        if (!ptr)
                 goto out;
-
-        if (info->assoc_class) {
-                CU_DEBUG("Check client's assocClass: '%s'",
-                         info->assoc_class);
-                
-                rc = match_class(ctx->brkr, 
-                                 NAMESPACE(ref),  
-                                 info->assoc_class,
-                                 ptr->assoc_class);
-                
-                if (!rc) {
-                        CU_DEBUG("AssocClass not valid.");
-                        goto out;
-                }
-                CU_DEBUG("AssocClass valid.");
-        }
-        
-        if (info->result_class) {
-                CU_DEBUG("Check client's resultClass: '%s'",
-                         info->result_class);
-                
-                rc = match_class(ctx->brkr, 
-                                 NAMESPACE(ref), 
-                                 info->result_class, 
-                                 ptr->target_class);
-                
-                if (!rc) {
-                        CU_DEBUG("ResultClass not valid.");
-                        goto out;
-                }
-                CU_DEBUG("ResultClass valid.");
-        }
-        
-        if (info->role) {
-                CU_DEBUG("Check client's role: '%s'",
-                         info->role);
-                
-                if (!STREQC(info->role, ptr->source_prop)) {
-                        CU_DEBUG("Role not valid.");
-                        goto out;
-                }
-                CU_DEBUG("Role valid.");
         }
 
-        if (info->result_role) {
-                CU_DEBUG("Check client's resultRole: '%s'",
-                         info->result_role);
-                
-                if (!STREQC(info->result_role, ptr->target_prop)) {
-                        CU_DEBUG("ResultRole not valid.");
-                        goto out;
-                }
-                CU_DEBUG("ResultRole valid.");
-        }
-                
-        return ptr;
+        CU_DEBUG("No valid handler found");        
+        ptr = NULL;
  
  out:
-        return NULL;
+        return ptr;
 }
 
 static CMPIStatus prepare_ref_return_list(struct std_assoc *handler,
