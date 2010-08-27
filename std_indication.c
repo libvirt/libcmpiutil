@@ -311,6 +311,7 @@ CMPIStatus stdi_handler(CMPIMethodMI *self,
                            CMPI_RC_ERR_FAILED,
                            "Invalid method");
 
+        CMReturnDone(results); 
         return s;
 }
 
