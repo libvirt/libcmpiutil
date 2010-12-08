@@ -253,6 +253,46 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
         return dest;
 }
 
+
+CMPIStatus cu_merge_instances(CMPIInstance *src,
+                              CMPIInstance *dest)
+{
+
+        int i;
+        int prop_count;
+        CMPIData data;
+        CMPIStatus s = {CMPI_RC_OK, NULL};
+
+        CU_DEBUG("Merging instances");
+        prop_count = CMGetPropertyCount(src, &s);
+        if (s.rc != CMPI_RC_OK) {
+                CU_DEBUG("Could not get property count for merge");
+                goto out;
+        }
+
+        CU_DEBUG("Property count is %d", prop_count);
+        for (i = 0; i < prop_count; i++) {
+                CMPIString *prop;
+                const char *prop_name;
+
+                data = CMGetPropertyAt(src, i, &prop, &s);
+                if (s.rc != CMPI_RC_OK) {
+                        goto out;
+                }
+
+                prop_name = CMGetCharPtr(prop);
+
+                if(data.state == 0 ) {
+                       CU_DEBUG("setting prop %s", prop_name);
+                       CMSetProperty(dest, prop_name,
+                                     &(data.value), data.type);
+                }
+        }
+
+ out:
+        return s;
+}
+
 const char *cu_classname_from_inst(CMPIInstance *inst)
 {
         const char *ret = NULL;

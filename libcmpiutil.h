@@ -167,6 +167,17 @@ CMPIrc cu_get_u16_path(const CMPIObjectPath *reference,
                        uint16_t *target);
 
 /**
+ * Merge src and dest instances to dest.
+ *
+ * @param src Source instance
+ * @param dest Destination instance
+ * @returns {CMPI_RC_OK, NULL} if success, CMPI_RC ERR_FAILED and 
+ *          error message otherwise
+ */
+CMPIStatus cu_merge_instances(CMPIInstance *src,
+                                 CMPIInstance *dest);
+
+/**
  * Create a copy of an instance
  *
  * @param src Source instance
