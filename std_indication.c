@@ -98,7 +98,7 @@ static CMPIStatus trigger(struct std_indication_ctx *ctx,
 
 static CMPIStatus default_raise(const CMPIBroker *broker,
                                 const CMPIContext *context,
-                                CMPIObjectPath *ref,
+                                const CMPIObjectPath *ref,
                                 CMPIInstance *ind)
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
@@ -117,7 +117,7 @@ static CMPIStatus default_raise(const CMPIBroker *broker,
 static CMPIStatus raise(struct std_indication_ctx *ctx,
                         const CMPIContext *context,
                         const CMPIArgs *argsin,
-                        CMPIObjectPath *ref)
+                        const CMPIObjectPath *ref)
 {
         bool enabled;
         CMPIInstance *inst;
@@ -301,7 +301,7 @@ _EI_RTYPE stdi_disable_indications (CMPIIndicationMI* mi,
 CMPIStatus stdi_handler(CMPIMethodMI *self,
                         const CMPIContext *context,
                         const CMPIResult *results,
-                        CMPIObjectPath *reference,
+                        const CMPIObjectPath *reference,
                         const char *methodname,
                         const CMPIArgs *argsin,
                         CMPIArgs *argsout)

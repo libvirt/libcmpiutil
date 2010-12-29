@@ -41,7 +41,7 @@
 
 typedef CMPIStatus (*raise_indication_t)(const CMPIBroker *broker,
                                          const CMPIContext *ctx,
-                                         CMPIObjectPath *ref,
+                                         const CMPIObjectPath *ref,
                                          const CMPIInstance *ind);
 
 typedef CMPIStatus (*trigger_indication_t)(const CMPIContext *ctx);
@@ -135,7 +135,7 @@ _EI_RTYPE stdi_disable_indications (CMPIIndicationMI* mi,
 CMPIStatus stdi_handler(CMPIMethodMI *self,
                         const CMPIContext *context,
                         const CMPIResult *results,
-                        CMPIObjectPath *reference,
+                        const CMPIObjectPath *reference,
                         const char *methodname,
                         const CMPIArgs *argsin,
                         CMPIArgs *argsout);
