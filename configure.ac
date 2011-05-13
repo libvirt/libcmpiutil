@@ -30,7 +30,9 @@ AC_SUBST(topdir)
 
 AC_CONFIG_FILES([Makefile tools/Makefile])
 
+# Use silent-rules if possible
 AM_INIT_AUTOMAKE
+m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES([yes])])
 
 AC_PROG_CC
 
@@ -51,6 +53,8 @@ AC_ARG_ENABLE([eoparser],
 
 AM_CONDITIONAL([build_eoparser],[test x$eoparser = xyes])       
 
+# Check for pkg-config program
+PKG_PROG_PKG_CONFIG
 CHECK_LIBXML2
 
 if test x${eoparser} = xyes; then
