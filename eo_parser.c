@@ -115,16 +115,16 @@ static int _set_int_prop(CMPISint64 value,
         CMPIStatus s;
         uint64_t unsigned_val = 0;
         int64_t signed_val = 0;
-           
+
         switch(type) {
         case CMPI_uint64:
         case CMPI_uint32:
         case CMPI_uint16:
         case CMPI_uint8:
                 unsigned_val = (uint64_t) value;
-                s = CMSetProperty(inst, 
-                                  prop, 
-                                  (CMPIValue *) &(unsigned_val), 
+                s = CMSetProperty(inst,
+                                  prop,
+                                  (CMPIValue *) &(unsigned_val),
                                   type);
                 break;
         case CMPI_sint64:
@@ -133,9 +133,9 @@ static int _set_int_prop(CMPISint64 value,
         case CMPI_sint8:
         default:
                 signed_val = (int64_t) value;
-                s = CMSetProperty(inst, 
-                                  prop, 
-                                  (CMPIValue *) &(signed_val), 
+                s = CMSetProperty(inst,
+                                  prop,
+                                  (CMPIValue *) &(signed_val),
                                   type);
         }
 
@@ -151,17 +151,17 @@ CMPIType set_int_prop(CMPISint64 value,
 {
         if (_set_int_prop(value, prop, CMPI_uint64, inst) == 1)
                return CMPI_uint64;
-        else if (_set_int_prop(value, prop, CMPI_uint32, inst) == 1) 
+        else if (_set_int_prop(value, prop, CMPI_uint32, inst) == 1)
                return CMPI_uint32;
-        else if (_set_int_prop(value, prop, CMPI_uint16, inst) == 1) 
+        else if (_set_int_prop(value, prop, CMPI_uint16, inst) == 1)
                return CMPI_uint16;
         else if (_set_int_prop(value, prop, CMPI_uint8, inst) == 1)
                return CMPI_uint8;
         else if (_set_int_prop(value, prop, CMPI_sint64, inst) == 1)
                return CMPI_sint64;
-        else if (_set_int_prop(value, prop, CMPI_sint32, inst) == 1) 
+        else if (_set_int_prop(value, prop, CMPI_sint32, inst) == 1)
                return CMPI_sint32;
-        else if (_set_int_prop(value, prop, CMPI_sint16, inst) == 1) 
+        else if (_set_int_prop(value, prop, CMPI_sint16, inst) == 1)
                return CMPI_sint16;
         else
                _set_int_prop(value, prop, CMPI_sint8, inst);
@@ -176,7 +176,7 @@ inline CMPIStatus ins_chars_into_cmstr_arr(const CMPIBroker *broker,
 {
         CMPIString *cm_str;
         CMPIStatus s = {CMPI_RC_OK, NULL};
-        
+
         cm_str = CMNewString(broker, str, &s);
         if (s.rc != CMPI_RC_OK || CMIsNullObject(cm_str)) {
                 CU_DEBUG("Error creating CMPIString");

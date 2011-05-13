@@ -51,7 +51,7 @@ void debug_print(char *fmt, ...)
 
         if (log != NULL)
                 vfprintf(log, fmt, ap);
-        
+
         va_end(ap);
 }
 

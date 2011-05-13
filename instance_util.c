@@ -92,15 +92,15 @@ static bool _compare_classname(const CMPIObjectPath *ref,
 {
         const char *ref_cn;
         const char *op_cn;
-        
+
         ref_cn = CLASSNAME(ref);
         if (ref_cn == NULL)
                 return false;
-        
+
         op_cn = CLASSNAME(op);
         if (op_cn == NULL)
                 return false;
-        
+
         return STREQC(op_cn, ref_cn);
 }
 
@@ -108,7 +108,7 @@ const char *cu_compare_ref(const CMPIObjectPath *ref,
                            const CMPIInstance *inst)
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
-        CMPIObjectPath *op; 
+        CMPIObjectPath *op;
         const char *prop = NULL;
         int i;
         int count;
@@ -119,14 +119,14 @@ const char *cu_compare_ref(const CMPIObjectPath *ref,
 
         if (!_compare_classname(ref, op))
                 return "CreationClassName";
-        
+
         count = CMGetKeyCount(op, &s);
         if (s.rc != CMPI_RC_OK) {
                 CU_DEBUG("Unable to get key count");
                 return NULL;
         }
         CU_DEBUG("Number of keys: %i", count);
-        
+
         for (i = 0; i < count; i++) {
                 CMPIData kd, pd;
                 CMPIString *str;
@@ -163,14 +163,14 @@ CMPIStatus cu_validate_ref(const CMPIBroker *broker,
 {
         CMPIStatus s = {CMPI_RC_OK, NULL};
         const char *prop;
-        
+
         prop = cu_compare_ref(ref, inst);
         if (prop != NULL) {
                 cu_statusf(broker, &s,
                            CMPI_RC_ERR_NOT_FOUND,
                            "No such instance (%s)", prop);
         }
-        
+
         return s;
 }
 
@@ -182,7 +182,7 @@ CMPIStatus cu_copy_prop(const CMPIBroker *broker,
         CMPIStatus s = {CMPI_RC_OK, NULL};
 
         if (src_name == NULL) {
-                cu_statusf(broker, &s, 
+                cu_statusf(broker, &s,
                            CMPI_RC_ERR_FAILED,
                            "No property name given");
                 goto out;
@@ -193,7 +193,7 @@ CMPIStatus cu_copy_prop(const CMPIBroker *broker,
 
         data = CMGetProperty(src_inst, src_name, &s);
         if (s.rc != CMPI_RC_OK || CMIsNullValue(data)) {
-                cu_statusf(broker, &s, 
+                cu_statusf(broker, &s,
                            CMPI_RC_ERR_FAILED,
                            "Copy failed.  Could not get prop '%s'.", src_name);
                 goto out;
@@ -202,7 +202,7 @@ CMPIStatus cu_copy_prop(const CMPIBroker *broker,
         CMSetProperty(dest_inst, dest_name, &(data.value), data.type);
 
  out:
-        return s;        
+        return s;
 }
 
 CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
@@ -222,7 +222,7 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
                            "Could not get objectpath from instance");
                 goto out;
         }
-     
+
         dest = CMNewInstance(broker, ref, s);
 
         prop_count = CMGetPropertyCount(src, s);
@@ -242,8 +242,8 @@ CMPIInstance *cu_dup_instance(const CMPIBroker *broker,
                 if (s->rc != CMPI_RC_OK) {
                         goto out;
                 }
-                
-                *s = CMSetProperty(dest, prop_name, 
+
+                *s = CMSetProperty(dest, prop_name,
                                    &(data.value), data.type);
                 if (s->rc != CMPI_RC_OK) {
                         goto out;
@@ -302,7 +302,7 @@ const char *cu_classname_from_inst(CMPIInstance *inst)
         ref = CMGetObjectPath(inst, NULL);
         if (CMIsNullObject(ref))
                 goto out;
-        
+
         ret = CLASSNAME(ref);
 
  out:

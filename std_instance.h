@@ -24,11 +24,11 @@
 #define __STD_INSTANCE_H
 
 /**
- * Generates the function table and initialization stub for an 
+ * Generates the function table and initialization stub for an
  * instance provider.
- * @param pfx    The prefix for all mandatory association provider 
+ * @param pfx    The prefix for all mandatory association provider
  *               functions.
- * @param pn     The provider name under which this provider is 
+ * @param pn     The provider name under which this provider is
  *               registered.
  * @param broker The CMPIBroker pointer.
  * @param hook   Perform additional initialization functions.

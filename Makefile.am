@@ -39,7 +39,7 @@ EOPARSER = libcueoparser.la
 BUILT_SOURCES = eo_util_lexer.c eo_util_parser.c eo_util_parser.h
 endif
 
-lib_LTLIBRARIES = $(EOPARSER) libcmpiutil.la 
+lib_LTLIBRARIES = $(EOPARSER) libcmpiutil.la
 
 docs:
 if found_doxygen

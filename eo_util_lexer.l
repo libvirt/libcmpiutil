@@ -35,11 +35,11 @@ WORD		([A-Za-z]+)
 QUOTEDTEXT	(\"[^"\n]*["\n])
 SINGLEQUOTEDTEXT	(\'[^'\n]*['\n])
 FILENAME	([A-Za-z0-9\.][A-Za-z0-9\.\-\+\_]*)
-PATHNAME	(\/?[A-Za-z0-9\.][A-Za-z0-9\.\-\+\_]*(\/[A-Za-z0-9\.][A-Za-z0-9\.\-\+\_]*)*\/?) 
-HOSTNAME	([A-Za-z][A-Za-z0-9\-\_]*(\.[A-Za-z][A-Za-z0-9\-\_]*)*) 
+PATHNAME	(\/?[A-Za-z0-9\.][A-Za-z0-9\.\-\+\_]*(\/[A-Za-z0-9\.][A-Za-z0-9\.\-\+\_]*)*\/?)
+HOSTNAME	([A-Za-z][A-Za-z0-9\-\_]*(\.[A-Za-z][A-Za-z0-9\-\_]*)*)
 IPADDR		([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)
 
-	/* Special mode to read CLASSNAME after reading INSTANCE OF, 
+	/* Special mode to read CLASSNAME after reading INSTANCE OF,
 	 * otherwise cannot distinguish this token from a PROPERTYNAME */
 %x READCLASSNAME
 
@@ -143,7 +143,7 @@ NULL	{
 
 void eo_parse_error(char *errmsg)
 {
-   fprintf(stderr, "error line %d: %s in '%s'\n", 
+   fprintf(stderr, "error line %d: %s in '%s'\n",
            eolineno, errmsg, eo_parse_text);
 }
 

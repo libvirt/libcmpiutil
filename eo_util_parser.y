@@ -117,10 +117,10 @@ property:	PROPERTYNAME '=' STRING ';'
 
 	|	PROPERTYNAME '=' INTEGER ';'
 			{
-                        EOTRACE("propertyname = %s\n", $1); 
+                        EOTRACE("propertyname = %s\n", $1);
                         CMPIType t = set_int_prop($3, $1, *_INSTANCE);
                         EOTRACE("\ttype = %d\n"
-                                "\tvalue = %lld\n", t, $3); 
+                                "\tvalue = %lld\n", t, $3);
                         free($1);
 			}
 
@@ -133,7 +133,7 @@ property:	PROPERTYNAME '=' STRING ';'
 			CMSetProperty(*_INSTANCE, $1, &($3), CMPI_boolean);
 			free($1);
 			}
-        |       PROPERTYNAME '=' OPENBRACKET                         
+        |       PROPERTYNAME '=' OPENBRACKET
                         {
                         EOTRACE("propertyname = %s\n"
 				"\ttype = CMPI_charsA\n",
@@ -142,8 +142,8 @@ property:	PROPERTYNAME '=' STRING ';'
                         stringarraysize = 0;
                         stringarraypropname = $1;
                         }
-                arrayofstrings CLOSEBRACKET ';' 
-                               
+                arrayofstrings CLOSEBRACKET ';'
+
 	|	PROPERTYNAME '=' CIMNULL ';'
 			{
 			EOTRACE("propertyname = %s\n"
@@ -152,38 +152,38 @@ property:	PROPERTYNAME '=' STRING ';'
 			}
 	;
 
-arrayofstrings: STRING 
+arrayofstrings: STRING
                         {
-                        EOTRACE("\t%s[%u]=%s\n", 
-                                propertyname, 
-                                stringarraysize, 
+                        EOTRACE("\t%s[%u]=%s\n",
+                                propertyname,
+                                stringarraysize,
                                 $1);
 
                         stringarraysize++;
-                        stringarray = (char **)realloc(stringarray, 
-                                                       sizeof(char *) * 
+                        stringarray = (char **)realloc(stringarray,
+                                                       sizeof(char *) *
                                                        stringarraysize);
                         stringarray[stringarraysize-1] = $1;
                         }
                 COMMA arrayofstrings
 
-              
+
         |       STRING
                         {
                         CMPIArray *arr;
                         CMPICount i;
                         CMPIStatus s = {CMPI_RC_OK, NULL};
-                        
-                        EOTRACE("\t%s[%u]=%s\n", 
-                                propertyname, 
-                                stringarraysize, 
+
+                        EOTRACE("\t%s[%u]=%s\n",
+                                propertyname,
+                                stringarraysize,
                                 $1);
-                        
+
                         stringarraysize++;
 
-                        arr = CMNewArray(_BROKER, 
-                                         stringarraysize, 
-                                         CMPI_string, 
+                        arr = CMNewArray(_BROKER,
+                                         stringarraysize,
+                                         CMPI_string,
                                          &s);
                         if (s.rc != CMPI_RC_OK || CMIsNullObject(arr)) {
                                 EOTRACE("Error creating array\n");
@@ -200,19 +200,19 @@ arrayofstrings: STRING
                                 if (s.rc != CMPI_RC_OK)
                                         goto str_arr_out;
                         }
-                        
-                        s = ins_chars_into_cmstr_arr(_BROKER, 
-                                                     arr,  
+
+                        s = ins_chars_into_cmstr_arr(_BROKER,
+                                                     arr,
                                                      stringarraysize - 1,
                                                      $1);
                         if (s.rc != CMPI_RC_OK)
                                 goto str_arr_out;
 
-                        CMSetProperty(*_INSTANCE, 
+                        CMSetProperty(*_INSTANCE,
                                       stringarraypropname,
                                       &arr,
                                       CMPI_stringA);
-                        
+
                        str_arr_out:
                         free(stringarraypropname);
                         for (i = 0; i < stringarraysize - 1; i++)
@@ -220,9 +220,9 @@ arrayofstrings: STRING
                         free($1);
 
                         if (s.rc != CMPI_RC_OK) {
-                                return RC_ARR_CREAT_FAILED; 
+                                return RC_ARR_CREAT_FAILED;
                         }
-                         
+
                         }
         ;
 

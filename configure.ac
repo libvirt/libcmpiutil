@@ -51,7 +51,7 @@ AC_ARG_ENABLE([eoparser],
 	[eoparser=${enableval}],
 	[eoparser=yes])
 
-AM_CONDITIONAL([build_eoparser],[test x$eoparser = xyes])       
+AM_CONDITIONAL([build_eoparser],[test x$eoparser = xyes])
 
 # Check for pkg-config program
 PKG_PROG_PKG_CONFIG

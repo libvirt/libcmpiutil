@@ -14,264 +14,264 @@ from xml.dom.minidom import parse, parseString
 
 def filter_xml(name, type, ns, sysname):
     return """
-    <?xml version="1.0" encoding="utf-8"?> 
-    <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
-    <MESSAGE ID="4711" PROTOCOLVERSION="1.0"> 
-      <SIMPLEREQ> 
-        <IMETHODCALL NAME="CreateInstance"> 
-          <LOCALNAMESPACEPATH> 
-            <NAMESPACE NAME="root"/> 
-            <NAMESPACE NAME="PG_InterOp"/> 
-          </LOCALNAMESPACEPATH> 
-          <IPARAMVALUE NAME="NewInstance"> 
+    <?xml version="1.0" encoding="utf-8"?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+    <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
+      <SIMPLEREQ>
+        <IMETHODCALL NAME="CreateInstance">
+          <LOCALNAMESPACEPATH>
+            <NAMESPACE NAME="root"/>
+            <NAMESPACE NAME="PG_InterOp"/>
+          </LOCALNAMESPACEPATH>
+          <IPARAMVALUE NAME="NewInstance">
               <INSTANCE CLASSNAME="CIM_IndicationFilter">
-                <PROPERTY NAME="SystemCreationClassName" TYPE="string"> 
-                  <VALUE>CIM_ComputerSystem</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="SystemName" TYPE="string"> 
-                  <VALUE>%s</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="CreationClassName" TYPE="string"> 
-                  <VALUE>CIM_IndicationFilter</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="Name" TYPE="string"> 
-                  <VALUE>%sFilter</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="Query" TYPE="string"> 
-                  <VALUE> SELECT * FROM %s 
-                  </VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="QueryLanguage" TYPE="string"> 
-                  <VALUE>WQL</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="SourceNamespace" TYPE="string"> 
-                  <VALUE>%s</VALUE> 
-                </PROPERTY> 
-              </INSTANCE> 
-            </IPARAMVALUE> 
-          </IMETHODCALL> 
-        </SIMPLEREQ> 
-      </MESSAGE> 
+                <PROPERTY NAME="SystemCreationClassName" TYPE="string">
+                  <VALUE>CIM_ComputerSystem</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="SystemName" TYPE="string">
+                  <VALUE>%s</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="CreationClassName" TYPE="string">
+                  <VALUE>CIM_IndicationFilter</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="Name" TYPE="string">
+                  <VALUE>%sFilter</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="Query" TYPE="string">
+                  <VALUE> SELECT * FROM %s
+                  </VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="QueryLanguage" TYPE="string">
+                  <VALUE>WQL</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="SourceNamespace" TYPE="string">
+                  <VALUE>%s</VALUE>
+                </PROPERTY>
+              </INSTANCE>
+            </IPARAMVALUE>
+          </IMETHODCALL>
+        </SIMPLEREQ>
+      </MESSAGE>
     </CIM>
     """ % (sysname, name, type, ns)
 
 def handler_xml(name, port, sysname):
     return """
-    <?xml version="1.0" encoding="utf-8"?> 
-    <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
-      <MESSAGE ID="4711" PROTOCOLVERSION="1.0"> 
-        <SIMPLEREQ> 
-        <IMETHODCALL NAME="CreateInstance"> 
-            <LOCALNAMESPACEPATH> 
-              <NAMESPACE NAME="root"/> 
-              <NAMESPACE NAME="PG_InterOp"/> 
-            </LOCALNAMESPACEPATH> 
-            <IPARAMVALUE NAME="NewInstance"> 
-              <INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML"> 
-                <PROPERTY NAME="SystemCreationClassName" TYPE="string"> 
-                  <VALUE>CIM_ComputerSystem</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="SystemName" TYPE="string"> 
-                  <VALUE>%s</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="CreationClassName" TYPE="string"> 
-                  <VALUE>CIM_IndicationHandlerCIMXML</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="Name" TYPE="string"> 
-                  <VALUE>%sHandler</VALUE> 
-                </PROPERTY> 
-                <PROPERTY NAME="Destination" TYPE="string"> 
-                  <VALUE>http://localhost:%i</VALUE> 
-                </PROPERTY> 
-              </INSTANCE> 
-            </IPARAMVALUE> 
-          </IMETHODCALL> 
-        </SIMPLEREQ> 
-      </MESSAGE> 
+    <?xml version="1.0" encoding="utf-8"?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+      <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+        <IMETHODCALL NAME="CreateInstance">
+            <LOCALNAMESPACEPATH>
+              <NAMESPACE NAME="root"/>
+              <NAMESPACE NAME="PG_InterOp"/>
+            </LOCALNAMESPACEPATH>
+            <IPARAMVALUE NAME="NewInstance">
+              <INSTANCE CLASSNAME="CIM_IndicationHandlerCIMXML">
+                <PROPERTY NAME="SystemCreationClassName" TYPE="string">
+                  <VALUE>CIM_ComputerSystem</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="SystemName" TYPE="string">
+                  <VALUE>%s</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="CreationClassName" TYPE="string">
+                  <VALUE>CIM_IndicationHandlerCIMXML</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="Name" TYPE="string">
+                  <VALUE>%sHandler</VALUE>
+                </PROPERTY>
+                <PROPERTY NAME="Destination" TYPE="string">
+                  <VALUE>http://localhost:%i</VALUE>
+                </PROPERTY>
+              </INSTANCE>
+            </IPARAMVALUE>
+          </IMETHODCALL>
+        </SIMPLEREQ>
+      </MESSAGE>
       </CIM>
       """ % (sysname, name, port)
 
 def subscription_xml(name, sysname):
     return """
-    <?xml version="1.0" encoding="utf-8"?> 
-    <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
-      <MESSAGE ID="4711" PROTOCOLVERSION="1.0"> 
-        <SIMPLEREQ> 
-          <IMETHODCALL NAME="CreateInstance"> 
-            <LOCALNAMESPACEPATH> 
-              <NAMESPACE NAME="root"/> 
-              <NAMESPACE NAME="PG_InterOp"/> 
-            </LOCALNAMESPACEPATH> 
-            <IPARAMVALUE NAME="NewInstance"> 
-              <INSTANCE CLASSNAME="CIM_IndicationSubscription"> 
-                <PROPERTY.REFERENCE NAME="Filter" 
-                                    REFERENCECLASS="CIM_IndicationFilter"> 
-                  <VALUE.REFERENCE> 
-                    <INSTANCENAME CLASSNAME="CIM_IndicationFilter"> 
-                      <KEYBINDING NAME="SystemCreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_ComputerSystem 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="SystemName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        %s 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="CreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_IndicationFilter 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="Name"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        %sFilter 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                    </INSTANCENAME> 
-                  </VALUE.REFERENCE> 
-                </PROPERTY.REFERENCE> 
-                <PROPERTY.REFERENCE NAME="Handler" 
-                                    REFERENCECLASS="CIM_IndicationHandler"> 
-                  <VALUE.REFERENCE> 
-                    <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML"> 
-                      <KEYBINDING NAME="SystemCreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_ComputerSystem 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="SystemName"> 
-                        <KEYVALUE VALUETYPE="string"> 
+    <?xml version="1.0" encoding="utf-8"?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+      <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+          <IMETHODCALL NAME="CreateInstance">
+            <LOCALNAMESPACEPATH>
+              <NAMESPACE NAME="root"/>
+              <NAMESPACE NAME="PG_InterOp"/>
+            </LOCALNAMESPACEPATH>
+            <IPARAMVALUE NAME="NewInstance">
+              <INSTANCE CLASSNAME="CIM_IndicationSubscription">
+                <PROPERTY.REFERENCE NAME="Filter"
+                                    REFERENCECLASS="CIM_IndicationFilter">
+                  <VALUE.REFERENCE>
+                    <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+                      <KEYBINDING NAME="SystemCreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_ComputerSystem
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="SystemName">
+                        <KEYVALUE VALUETYPE="string">
                         %s
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="CreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_IndicationHandlerCIMXML 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="Name"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        %sHandler 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                    </INSTANCENAME> 
-                  </VALUE.REFERENCE> 
-                </PROPERTY.REFERENCE> 
-                <PROPERTY NAME="SubscriptionState" TYPE="uint16"> 
-                  <VALUE> 2 </VALUE> 
-                </PROPERTY> 
-              </INSTANCE> 
-            </IPARAMVALUE> 
-          </IMETHODCALL> 
-        </SIMPLEREQ> 
-      </MESSAGE> 
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="CreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_IndicationFilter
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="Name">
+                        <KEYVALUE VALUETYPE="string">
+                        %sFilter
+                        </KEYVALUE>
+                      </KEYBINDING>
+                    </INSTANCENAME>
+                  </VALUE.REFERENCE>
+                </PROPERTY.REFERENCE>
+                <PROPERTY.REFERENCE NAME="Handler"
+                                    REFERENCECLASS="CIM_IndicationHandler">
+                  <VALUE.REFERENCE>
+                    <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+                      <KEYBINDING NAME="SystemCreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_ComputerSystem
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="SystemName">
+                        <KEYVALUE VALUETYPE="string">
+                        %s
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="CreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_IndicationHandlerCIMXML
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="Name">
+                        <KEYVALUE VALUETYPE="string">
+                        %sHandler
+                        </KEYVALUE>
+                      </KEYBINDING>
+                    </INSTANCENAME>
+                  </VALUE.REFERENCE>
+                </PROPERTY.REFERENCE>
+                <PROPERTY NAME="SubscriptionState" TYPE="uint16">
+                  <VALUE> 2 </VALUE>
+                </PROPERTY>
+              </INSTANCE>
+            </IPARAMVALUE>
+          </IMETHODCALL>
+        </SIMPLEREQ>
+      </MESSAGE>
       </CIM>
       """ % (sysname, name, sysname, name)
 
 def delete_inst_xml(name, type, sysname, inst_name):
     return """
-    <?xml version="1.0" encoding="utf-8"?> 
-    <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
-      <MESSAGE ID="4711" PROTOCOLVERSION="1.0"> 
-        <SIMPLEREQ> 
-          <IMETHODCALL NAME="DeleteInstance"> 
-            <LOCALNAMESPACEPATH> 
-              <NAMESPACE NAME="root"/> 
-              <NAMESPACE NAME="PG_InterOp"/> 
-            </LOCALNAMESPACEPATH> 
-            <IPARAMVALUE NAME="InstanceName"> 
-              <INSTANCENAME CLASSNAME="CIM_Indication%s"> 
-                <KEYBINDING NAME="SystemCreationClassName"> 
-                  <KEYVALUE>CIM_ComputerSystem</KEYVALUE> 
-                </KEYBINDING> 
-                <KEYBINDING NAME="SystemName"> 
-                  <KEYVALUE>%s</KEYVALUE> 
-                </KEYBINDING> 
-                <KEYBINDING NAME="CreationClassName"> 
-                  <KEYVALUE>CIM_Indication%s</KEYVALUE> 
-                </KEYBINDING> 
-                <KEYBINDING NAME="Name"> 
-                  <KEYVALUE>%s</KEYVALUE> 
-                </KEYBINDING> 
-              </INSTANCENAME> 
-            </IPARAMVALUE> 
-          </IMETHODCALL> 
-        </SIMPLEREQ> 
-      </MESSAGE> 
+    <?xml version="1.0" encoding="utf-8"?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+      <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+          <IMETHODCALL NAME="DeleteInstance">
+            <LOCALNAMESPACEPATH>
+              <NAMESPACE NAME="root"/>
+              <NAMESPACE NAME="PG_InterOp"/>
+            </LOCALNAMESPACEPATH>
+            <IPARAMVALUE NAME="InstanceName">
+              <INSTANCENAME CLASSNAME="CIM_Indication%s">
+                <KEYBINDING NAME="SystemCreationClassName">
+                  <KEYVALUE>CIM_ComputerSystem</KEYVALUE>
+                </KEYBINDING>
+                <KEYBINDING NAME="SystemName">
+                  <KEYVALUE>%s</KEYVALUE>
+                </KEYBINDING>
+                <KEYBINDING NAME="CreationClassName">
+                  <KEYVALUE>CIM_Indication%s</KEYVALUE>
+                </KEYBINDING>
+                <KEYBINDING NAME="Name">
+                  <KEYVALUE>%s</KEYVALUE>
+                </KEYBINDING>
+              </INSTANCENAME>
+            </IPARAMVALUE>
+          </IMETHODCALL>
+        </SIMPLEREQ>
+      </MESSAGE>
     </CIM>;
     """ % (type, sysname, type, inst_name);
 
 def delete_sub_xml(name, sysname):
     return """
-    <?xml version="1.0" encoding="utf-8"?> 
-    <CIM CIMVERSION="2.0" DTDVERSION="2.0"> 
-      <MESSAGE ID="4711" PROTOCOLVERSION="1.0"> 
-        <SIMPLEREQ> 
-          <IMETHODCALL NAME="DeleteInstance"> 
-            <LOCALNAMESPACEPATH> 
-              <NAMESPACE NAME="root"/> 
-              <NAMESPACE NAME="PG_InterOp"/> 
-            </LOCALNAMESPACEPATH> 
-            <IPARAMVALUE NAME="InstanceName"> 
-              <INSTANCENAME CLASSNAME="CIM_IndicationSubscription"> 
-                <KEYBINDING NAME="Filter"> 
-                  <VALUE.REFERENCE> 
-                    <INSTANCENAME CLASSNAME="CIM_IndicationFilter"> 
-                      <KEYBINDING NAME="SystemCreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_ComputerSystem 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="SystemName"> 
-                        <KEYVALUE VALUETYPE="string"> 
+    <?xml version="1.0" encoding="utf-8"?>
+    <CIM CIMVERSION="2.0" DTDVERSION="2.0">
+      <MESSAGE ID="4711" PROTOCOLVERSION="1.0">
+        <SIMPLEREQ>
+          <IMETHODCALL NAME="DeleteInstance">
+            <LOCALNAMESPACEPATH>
+              <NAMESPACE NAME="root"/>
+              <NAMESPACE NAME="PG_InterOp"/>
+            </LOCALNAMESPACEPATH>
+            <IPARAMVALUE NAME="InstanceName">
+              <INSTANCENAME CLASSNAME="CIM_IndicationSubscription">
+                <KEYBINDING NAME="Filter">
+                  <VALUE.REFERENCE>
+                    <INSTANCENAME CLASSNAME="CIM_IndicationFilter">
+                      <KEYBINDING NAME="SystemCreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_ComputerSystem
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="SystemName">
+                        <KEYVALUE VALUETYPE="string">
                         %s
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="CreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_IndicationFilter 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="Name"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        %sFilter 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                    </INSTANCENAME> 
-                  </VALUE.REFERENCE> 
-                </KEYBINDING> 
-                <KEYBINDING NAME="Handler"> 
-                  <VALUE.REFERENCE> 
-                    <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML"> 
-                      <KEYBINDING NAME="SystemCreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_ComputerSystem 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="SystemName"> 
-                        <KEYVALUE VALUETYPE="string"> 
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="CreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_IndicationFilter
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="Name">
+                        <KEYVALUE VALUETYPE="string">
+                        %sFilter
+                        </KEYVALUE>
+                      </KEYBINDING>
+                    </INSTANCENAME>
+                  </VALUE.REFERENCE>
+                </KEYBINDING>
+                <KEYBINDING NAME="Handler">
+                  <VALUE.REFERENCE>
+                    <INSTANCENAME CLASSNAME="CIM_IndicationHandlerCIMXML">
+                      <KEYBINDING NAME="SystemCreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_ComputerSystem
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="SystemName">
+                        <KEYVALUE VALUETYPE="string">
                         %s
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="CreationClassName"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        CIM_IndicationHandlerCIMXML 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                      <KEYBINDING NAME="Name"> 
-                        <KEYVALUE VALUETYPE="string"> 
-                        %sHandler 
-                        </KEYVALUE> 
-                      </KEYBINDING> 
-                    </INSTANCENAME> 
-                  </VALUE.REFERENCE> 
-                </KEYBINDING> 
-              </INSTANCENAME> 
-            </IPARAMVALUE> 
-          </IMETHODCALL> 
-        </SIMPLEREQ> 
-      </MESSAGE> 
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="CreationClassName">
+                        <KEYVALUE VALUETYPE="string">
+                        CIM_IndicationHandlerCIMXML
+                        </KEYVALUE>
+                      </KEYBINDING>
+                      <KEYBINDING NAME="Name">
+                        <KEYVALUE VALUETYPE="string">
+                        %sHandler
+                        </KEYVALUE>
+                      </KEYBINDING>
+                    </INSTANCENAME>
+                  </VALUE.REFERENCE>
+                </KEYBINDING>
+              </INSTANCENAME>
+            </IPARAMVALUE>
+          </IMETHODCALL>
+        </SIMPLEREQ>
+      </MESSAGE>
     </CIM>;
     """ % (sysname, name, sysname, name)
 
@@ -304,8 +304,8 @@ class CIMIndicationSubscription:
         self.ns = ns
         self.sysname = sysname
 
-        self.port = 8000 + port 
-        self.server = BaseHTTPServer.HTTPServer(('', self.port), 
+        self.port = 8000 + port
+        self.server = BaseHTTPServer.HTTPServer(('', self.port),
                                                  CIMSocketHandler)
         self.server.print_ind = print_ind
         self.server.indications = []
@@ -319,14 +319,14 @@ class CIMIndicationSubscription:
                    "CIMMethod"    : method,
                    "CIMObject"    : "root/PG_Interop",
                    "Content-Type" : 'application/xml; charset="utf-8"'}
- 
+
         if auth_hdr:
             headers["Authorization"] = "Basic %s" % auth_hdr
 
         conn.request("POST", "/cimom", body, headers)
         resp = conn.getresponse()
         if not resp.getheader("content-length"):
-            raise Exception("Request Failed: %d %s" % 
+            raise Exception("Request Failed: %d %s" %
                             (resp.status, resp.reason))
 
         resp.read()
@@ -380,11 +380,11 @@ def dump_xml(name, typ, ns, sysname):
     print "DeleteHandler:\n%s\n" % del_handler_str
     print "CreateSubscription:\n%s\n" % subscript_str
     print "DeleteSubscription:\n%s\n" % del_subscript_str
-    
+
 def main():
     usage = "usage: %prog [options] provider\nex: %prog CIM_InstModification"
     parser = OptionParser(usage)
-    
+
     parser.add_option("-u", "--url", dest="url", default="localhost:5988",
                       help="URL of CIMOM to connect to (host:port)")
     parser.add_option("-N", "--ns", dest="ns", default="root/virt",
@@ -410,17 +410,17 @@ def main():
     if len(args) == 0:
         print "Fatal: no indication type provided."
         sys.exit(1)
-    
+
     if options.username:
         auth = (options.username, options.password)
     else:
         auth = None
-    
+
     if ":" in options.url:
         (sysname, port) = options.url.split(":")
     else:
         sysname = options.url
-    
+
     if options.dump:
         dump_xml(options.name, args[0], options.ns, sysname)
         sys.exit(0)

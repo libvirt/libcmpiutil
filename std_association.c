@@ -68,7 +68,7 @@ static bool match_class(const CMPIBroker *broker,
 
         if (comp_class_list == NULL)
                 return true;
-        
+
         for (i = 0; comp_class_list[i]; i++) {
                 comp_class = comp_class_list[i];
                 rop = CMNewObjectPath(broker, ns, comp_class, NULL);
@@ -89,10 +89,10 @@ static bool match_source_class(const CMPIBroker *broker,
 
         for (i = 0; ptr->source_class[i]; i++) {
                 source_class = ptr->source_class[i];
-                
-                if (CMClassPathIsA(broker, 
-                                   ref, 
-                                   source_class, 
+
+                if (CMClassPathIsA(broker,
+                                   ref,
+                                   source_class,
                                    NULL))
                         return true;
         }
@@ -151,9 +151,9 @@ std_assoc_get_handler(const struct std_assoc_ctx *ctx,
 
                 if (!match_source_class(ctx->brkr, ref, ptr)) {
                         CU_DEBUG("Source class doesn't match");
-                        continue;        
+                        continue;
                 }
-                
+
                 if (!ptr) {
                         CU_DEBUG("Invalid pointer");
                         continue;
@@ -162,50 +162,50 @@ std_assoc_get_handler(const struct std_assoc_ctx *ctx,
                 if (info->assoc_class) {
                         CU_DEBUG("Check client's assocClass: '%s'",
                                  info->assoc_class);
-                
-                        rc = match_class(ctx->brkr, 
-                                         NAMESPACE(ref),  
+
+                        rc = match_class(ctx->brkr,
+                                         NAMESPACE(ref),
                                          info->assoc_class,
                                          ptr->assoc_class);
-                
+
                         if (!rc) {
                                 CU_DEBUG("AssocClass not valid.");
                                 continue;
                         }
                         CU_DEBUG("AssocClass valid.");
                 }
-        
+
                 if (info->result_class) {
                         CU_DEBUG("Check client's resultClass: '%s'",
                                  info->result_class);
-                
-                        rc = match_class(ctx->brkr, 
-                                         NAMESPACE(ref), 
-                                         info->result_class, 
+
+                        rc = match_class(ctx->brkr,
+                                         NAMESPACE(ref),
+                                         info->result_class,
                                          ptr->target_class);
-                
+
                         if (!rc) {
                                 CU_DEBUG("ResultClass not valid.");
                                 continue;
                         }
                         CU_DEBUG("ResultClass valid.");
                 }
-        
+
                 if (info->role) {
                         CU_DEBUG("Check client's role: '%s'",
                                  info->role);
-                
+
                         if (!STREQC(info->role, ptr->source_prop)) {
                                 CU_DEBUG("Invalid role");
                                 continue;
                         }
                         CU_DEBUG("Role valid.");
                 }
-        
+
                 if (info->result_role) {
                         CU_DEBUG("Check client's resultRole: '%s'",
                                  info->result_role);
-                
+
                         if (!STREQC(info->result_role, ptr->target_prop)) {
                                 CU_DEBUG("ResultRole not valid.");
                                 continue;
@@ -216,9 +216,9 @@ std_assoc_get_handler(const struct std_assoc_ctx *ctx,
                 goto out;
         }
 
-        CU_DEBUG("No valid handler found");        
+        CU_DEBUG("No valid handler found");
         ptr = NULL;
- 
+
  out:
         return ptr;
 }
@@ -240,11 +240,11 @@ static CMPIStatus prepare_ref_return_list(struct std_assoc *handler,
 
         for (i = 0; i < tmp_list.cur; i++) {
                 CMPIInstance *refinst;
-                
+
                 refinst = handler->make_ref(ref, tmp_list.list[i], info, handler);
                 if (refinst == NULL)
                         continue;
-                
+
                 inst_list_add(list, refinst);
         }
 
@@ -271,7 +271,7 @@ static CMPIStatus prepare_assoc_return_list(const CMPIBroker *broker,
                 CU_DEBUG("filter_results did not return CMPI_RC_OK.");
                 return s;
         }
-        
+
         return s;
 }
 
@@ -377,7 +377,7 @@ static CMPIStatus do_assoc(struct std_assoc_ctx *ctx,
                                               info,
                                               ref,
                                               &list);
-        
+
         if (s.rc != CMPI_RC_OK) {
                 CU_DEBUG("Prepare return list did not return CMPI_RC_OK.");
                 goto out;

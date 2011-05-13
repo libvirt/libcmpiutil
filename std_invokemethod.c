@@ -70,7 +70,7 @@ static int parse_eo_inst_arg(CMPIString *string_in,
                 return 0;
         }
 
-        return 1; 
+        return 1;
 }
 
 static int parse_eo_array(CMPIArray *strings_in,
@@ -168,9 +168,9 @@ static int parse_eo_param(CMPIArgs *args,
         return 1;
 }
 
-static int validate_arg_type(struct method_arg *arg, 
+static int validate_arg_type(struct method_arg *arg,
                              const CMPIArgs *args,
-                             const CMPIBroker *broker, 
+                             const CMPIBroker *broker,
                              const char *ns,
                              CMPIArgs *new_args,
                              CMPIStatus *s)
@@ -228,7 +228,7 @@ static int validate_arg_type(struct method_arg *arg,
         return 1;
 }
 
-static int validate_args(struct method_handler *h, 
+static int validate_args(struct method_handler *h,
                          const CMPIArgs **args,
                          const CMPIObjectPath *ref,
                          const CMPIBroker *broker,
@@ -243,10 +243,10 @@ static int validate_args(struct method_handler *h,
                 int ret;
                 struct method_arg *arg = &h->args[i];
 
-                ret = validate_arg_type(arg, 
-                                        *args, 
-                                        broker, 
-                                        NAMESPACE(ref), 
+                ret = validate_arg_type(arg,
+                                        *args,
+                                        broker,
+                                        NAMESPACE(ref),
                                         new_args,
                                         s);
                 if (!ret)
@@ -288,10 +288,10 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
                 goto exit;
         }
 
-        ret = validate_args(h, 
-                            &argsin, 
+        ret = validate_args(h,
+                            &argsin,
                             reference,
-                            ctx->broker, 
+                            ctx->broker,
                             &s);
         if (!ret)
                 goto exit;
@@ -302,7 +302,7 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
  exit:
         CMReturnDone(results);
 
-        return s; 
+        return s;
 }
 
 CMPIStatus _std_cleanup(CMPIMethodMI *self,
