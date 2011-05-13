@@ -22,10 +22,6 @@
  */
 #include <string.h>
 
-#include <cmpidt.h>
-#include <cmpift.h>
-#include <cmpimacs.h>
-
 #include "libcmpiutil.h"
 
 #include "std_association.h"

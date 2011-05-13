@@ -21,9 +21,8 @@
 #ifndef __STD_INVOKEMETHOD_H
 #define __STD_INVOKEMETHOD_H
 
-#include "cmpidt.h"
-#include "cmpift.h"
-#include "cmpimacs.h"
+#include <cmpidt.h>
+#include <cmpift.h>
 
 typedef CMPIStatus (*method_handler_fn)(CMPIMethodMI *self,
                                         const CMPIContext *context,

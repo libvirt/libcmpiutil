@@ -12,12 +12,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <stdlib.h>
-#include <stdio.h>
 
 #include <cmpidt.h>
-#include <cmpift.h>
-#include <cmpimacs.h>
 
 #define CLASSNAME(op) (CMGetCharPtr(CMGetClassName(op, NULL)))
 #define NAMESPACE(op) (CMGetCharPtr(CMGetNameSpace(op, NULL)))

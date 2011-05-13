@@ -20,9 +20,7 @@
  */
 #include <stdlib.h>
 
-#include <cmpidt.h>
-
-#include <libcmpiutil.h>
+#include "libcmpiutil.h"
 
 static int resize(struct inst_list *list, int newmax)
 {

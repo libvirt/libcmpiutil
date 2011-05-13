@@ -24,10 +24,6 @@
 #include <stdarg.h>
 #include <stdio.h>
 
-#include <cmpidt.h>
-#include <cmpift.h>
-#include <cmpimacs.h>
-
 #include "libcmpiutil.h"
 
 static int log_init = 0;

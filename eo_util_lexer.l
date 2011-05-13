@@ -11,7 +11,7 @@
 
 	/* DEFINITIONS SECTION */
 %{
-#include "cmpidt.h"
+#include <cmpidt.h>
 #include <string.h>
 #include "eo_util_parser.h"
 #ifndef YY_FLEX_LEX_COMPAT

@@ -27,7 +27,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
-#include "cmpidt.h"
+#include <cmpimacs.h>
 
 #include "libcmpiutil.h"
 #include "eo_util_parser.h"

@@ -20,12 +20,9 @@
  */
 #include <string.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
-#include <cmpidt.h>
-#include <cmpift.h>
-#include <cmpimacs.h>
-
-#include <libcmpiutil.h>
+#include "libcmpiutil.h"
 
 #define STREQ(a, b) (strcmp(a, b) == 0)
 #define STREQC(a, b) (strcasecmp(a, b) == 0)

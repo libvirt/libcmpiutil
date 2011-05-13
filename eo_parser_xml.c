@@ -28,8 +28,6 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
-#include <cmpidt.h>
-#include <cmpift.h>
 #include <cmpimacs.h>
 
 #include "libcmpiutil.h"

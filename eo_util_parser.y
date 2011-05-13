@@ -13,8 +13,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
-#include "cmpidt.h"
-#include "cmpift.h"
+#include <cmpidt.h>
+#include <cmpift.h>
 
 #include "eo_parser_xml.h"
 

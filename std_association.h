@@ -23,6 +23,7 @@
 #define __STD_ASSOCIATION_H
 
 #include <cmpidt.h>
+#include <cmpift.h>
 
 struct std_assoc;
 struct std_assoc_info;

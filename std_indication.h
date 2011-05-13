@@ -21,15 +21,10 @@
 #ifndef __STD_INDICATION_H
 #define __STD_INDICATION_H
 
+#include <stdbool.h>
+
 #include <cmpidt.h>
 #include <cmpift.h>
-#include <cmpimacs.h>
-#include <stdio.h>
-
-#include "config.h"
-
-#include "libcmpiutil.h"
-#include "std_invokemethod.h"
 
 #ifdef CMPI_EI_VOID
 # define _EI_RTYPE void
