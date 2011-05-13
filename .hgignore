@@ -18,3 +18,8 @@ Makefile.in$
 .*~$
 ^\.libs/.*
 .*\.la$
+.*\.pc$
+.*\.spec$
+ylwrap
+.*\.tar.bz2$
+.*\.tar.gz$
