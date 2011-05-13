@@ -17,6 +17,8 @@
 #ifndef YY_FLEX_LEX_COMPAT
 int eolineno = 1;
 #endif
+
+void eo_parse_error(char *errmsg);
 %}
 
 DIGIT		([0-9])

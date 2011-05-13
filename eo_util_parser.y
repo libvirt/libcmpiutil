@@ -118,7 +118,6 @@ property:	PROPERTYNAME '=' STRING ';'
 	|	PROPERTYNAME '=' INTEGER ';'
 			{
                         EOTRACE("propertyname = %s\n", $1); 
-                        int rc;
                         CMPIType t = set_int_prop($3, $1, *_INSTANCE);
                         EOTRACE("\ttype = %d\n"
                                 "\tvalue = %lld\n", t, $3); 
