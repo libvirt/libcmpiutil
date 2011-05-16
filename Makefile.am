@@ -31,7 +31,6 @@ AM_LFLAGS = -Peo_parse_
 AM_YFLAGS = -d -p eo_parse_
 
 if build_eoparser
-LEX_OUTPUT_ROOT = lex.eo_parse_
 libcueoparser_la_SOURCES = eo_util_parser.y eo_util_lexer.l eo_parser.c
 libcmpiutil_la_DEPENDENCIES += libcueoparser.la
 libcmpiutil_la_LIBADD += -lcueoparser
