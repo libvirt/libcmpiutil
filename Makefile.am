@@ -25,6 +25,7 @@ libcmpiutil_la_SOURCES = args_util.c instance_util.c std_invokemethod.c \
                          debug_util.c eo_parser_xml.c
 libcmpiutil_la_CFLAGS = $(CFLAGS) $(CFLAGS_STRICT)
 libcmpiutil_la_LIBADD = -lxml2
+libcmpiutil_la_LDFLAGS = -version-info @CMPIUTIL_VERSION_INFO@
 libcmpiutil_la_DEPENDENCIES =
 
 AM_LFLAGS = -Peo_parse_
@@ -32,6 +33,7 @@ AM_YFLAGS = -d -p eo_parse_
 
 if build_eoparser
 libcueoparser_la_SOURCES = eo_util_parser.y eo_util_lexer.l eo_parser.c
+libcueoparser_la_LDFLAGS = -version-info @CMPIUTIL_VERSION_INFO@
 libcmpiutil_la_DEPENDENCIES += libcueoparser.la
 libcmpiutil_la_LIBADD += -lcueoparser
 EOPARSER = libcueoparser.la
