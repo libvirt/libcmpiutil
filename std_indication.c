@@ -141,7 +141,12 @@ static CMPIStatus raise(struct std_indication_ctx *ctx,
 
         enabled = is_ind_enabled(ctx, ind_name, &s);
         if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("Problem checking enabled: '%s'", CMGetCharPtr(s.msg));
+                if (s.msg != NULL) {
+                        CU_DEBUG("Problem checking enabled: '%s'",
+                                                   CMGetCharPtr(s.msg));
+                } else {
+                        CU_DEBUG("Problem checking enabled, msg is NULL");
+                }
                 goto out;
         }
 
@@ -176,7 +181,12 @@ CMPIStatus stdi_deliver(const CMPIBroker *broker,
 
         enabled = is_ind_enabled(args->_ctx, ind_name, &s);
         if (s.rc != CMPI_RC_OK) {
-                CU_DEBUG("Problem checking enabled: '%s'", CMGetCharPtr(s.msg));
+                if (s.msg != NULL) {
+                        CU_DEBUG("Problem checking enabled: '%s'",
+                                                  CMGetCharPtr(s.msg));
+                } else {
+                        CU_DEBUG("Problem checking enabled, msg is NULL");
+                }
                 goto out;
         }
 
