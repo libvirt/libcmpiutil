@@ -23,6 +23,9 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
+#include <pthread.h>
+#include <sys/time.h>
+#include <time.h>
 
 #include "libcmpiutil.h"
 
@@ -32,6 +35,12 @@ static FILE *log = NULL;
 void debug_print(char *fmt, ...)
 {
         char *log_file = NULL;
+        pthread_t id;
+        struct timeval tv;
+        struct timezone tz;
+        time_t timep;
+        struct tm *p;
+
         va_list ap;
 
         va_start(ap, fmt);
@@ -49,8 +58,16 @@ void debug_print(char *fmt, ...)
                 log_init = 1;
         }
 
-        if (log != NULL)
+        if (log != NULL) {
+                gettimeofday(&tv, &tz);
+                time(&timep);
+                p=localtime(&timep);
+                id = pthread_self();
+                fprintf(log, "[%d-%02d-%02d %02d:%02d:%02d.%06d] [%ld]: ",
+                (1900+p->tm_year), (1+p->tm_mon), p->tm_mday, p->tm_hour,
+                p->tm_min, p->tm_sec, (int)tv.tv_usec, id);
                 vfprintf(log, fmt, ap);
+        }
 
         va_end(ap);
 }
