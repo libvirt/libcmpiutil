@@ -1,7 +1,7 @@
 # Copyright IBM Corp. 2007
 m4_define([cmpiutil_maj], [0])
 m4_define([cmpiutil_min], [5])
-m4_define([cmpiutil_mic], [6])
+m4_define([cmpiutil_mic], [7])
 m4_define([cmpiutil_version], [cmpiutil_maj.cmpiutil_min.cmpiutil_mic])
 
 AC_INIT([CMPI Utility Library], [cmpiutil_version], [cvincent@us.ibm.com], [libcmpiutil])
