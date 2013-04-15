@@ -23,7 +23,6 @@ CC_WARNINGS="\
 -Wformat-security \
 -Wformat-nonliteral \
 -Wno-format-y2k \
--Wcast-align \
 -Wno-unused-value"
 
 CFLAGS="$CFLAGS $CC_WARNINGS -D_FORTIFY_SOURCE=2 -D_GNU_SOURCE"
