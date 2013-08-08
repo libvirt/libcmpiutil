@@ -113,31 +113,40 @@ static int _set_int_prop(CMPISint64 value,
                          CMPIInstance *inst)
 {
         CMPIStatus s;
-        uint64_t unsigned_val = 0;
-        int64_t signed_val = 0;
+        CMPIValue val;
 
-        switch(type) {
+        switch (type) {
         case CMPI_uint64:
+                val.uint64 = (uint64_t) value;
+                break;
         case CMPI_uint32:
+                val.uint32 = (uint32_t) value;
+                break;
         case CMPI_uint16:
+                val.uint16 = (uint16_t) value;
+                break;
         case CMPI_uint8:
-                unsigned_val = (uint64_t) value;
-                s = CMSetProperty(inst,
-                                  prop,
-                                  (CMPIValue *) &(unsigned_val),
-                                  type);
+                val.uint8 = (uint8_t) value;
                 break;
         case CMPI_sint64:
+                val.sint64 = (int64_t) value;
+                break;
         case CMPI_sint32:
+                val.sint32 = (int32_t) value;
+                break;
         case CMPI_sint16:
+                val.sint16 = (int16_t) value;
+                break;
         case CMPI_sint8:
+                val.sint8 = (int8_t) value;
+                break;
         default:
-                signed_val = (int64_t) value;
-                s = CMSetProperty(inst,
-                                  prop,
-                                  (CMPIValue *) &(signed_val),
-                                  type);
+                return 0;
         }
+        s = CMSetProperty(inst,
+                          prop,
+                          &val,
+                          type);
 
         if (s.rc == CMPI_RC_OK)
                return 1;

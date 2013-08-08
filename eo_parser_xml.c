@@ -90,25 +90,54 @@ static CMPIType parse_int_property(const char *string,
         if (sign) {
                 int64_t _val;
                 ret = sscanf(string, "%" SCNi64, &_val);
-                val->sint64 = _val;
+                switch (size) {
+                case 8:
+                        t = CMPI_sint8;
+                        val->sint8 = (int8_t) _val;
+                        break;
+                case 16:
+                        t = CMPI_sint16;
+                        val->sint16 = (int16_t) _val;
+                        break;
+                case 32:
+                        t = CMPI_sint32;
+                        val->sint32 = (int32_t) _val;
+                        break;
+                default:
+                case 64:
+                        t = CMPI_sint64;
+                        val->sint64 = (int64_t) _val;
+                        break;
+                };
         } else {
                 uint64_t _val;
                 ret = sscanf(string, "%" SCNu64, &_val);
-                val->uint64 = _val;
+                switch (size) {
+                case 8:
+                        t = CMPI_uint8;
+                        val->uint8 = (uint8_t) _val;
+                        break;
+                case 16:
+                        t = CMPI_uint16;
+                        val->uint16 = (uint16_t) _val;
+                        break;
+                case 32:
+                        t = CMPI_uint32;
+                        val->uint32 = (uint32_t) _val;
+                        break;
+                default:
+                case 64:
+                        t = CMPI_uint64;
+                        val->uint64 = (uint64_t) _val;
+                        break;
+
+                };
         }
 
         if (ret != 1) {
                 CU_DEBUG("Failed to scan value `%s'\n", string);
                 return CMPI_null;
         }
-
-        switch (size) {
-        case 8:  t = sign ? CMPI_sint8  : CMPI_uint8;  break;
-        case 16: t = sign ? CMPI_sint16 : CMPI_uint16; break;
-        case 32: t = sign ? CMPI_sint32 : CMPI_uint32; break;
-        default:
-        case 64: t = sign ? CMPI_sint64 : CMPI_uint64; break;
-        };
 
         return t;
 }
