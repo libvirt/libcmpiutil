@@ -112,7 +112,7 @@ CMPIStatus _std_invokemethod(CMPIMethodMI *self,
 
         CU_DEBUG("Executing handler for method `%s'", methodname);
         s = h->handler(self, context, results, reference, argsin, argsout);
-        CU_DEBUG("Method `%s' returned %i", s.rc);
+        CU_DEBUG("Method `%s' returned %i", methodname, s.rc);
  exit:
         CMReturnDone(results);
 
